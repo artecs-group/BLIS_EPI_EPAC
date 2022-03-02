@@ -1,10 +1,10 @@
 #include "blis.h"
 
-//#include "vehave-control.h"
-
-// -I development/include/vehave
-// vehave_trace(1000, 1);
-// vehave_trace(1000, 0);
+#ifdef EPI_FPGA
+#define BROADCAST_f64 __builtin_epi_vbroadcast_1xf64
+#else
+#define BROADCAST_f64 __builtin_epi_vfmv_v_f_1xf64
+#endif
 
 void bli_dgemm_epi_scalar_16x1v
      (
@@ -32,23 +32,18 @@ void bli_dgemm_epi_scalar_16x1v
 	//void* a_next = bli_auxinfo_next_a( data );
 	//void* b_next = bli_auxinfo_next_b( data );
 
-	//const dim_t     mr     = bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_MR, cntx ); 
         const dim_t     nr     = bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_NR, cntx ); 
 
 	GEMM_UKR_SETUP_CT_AMBI( d, bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_MR, cntx ),
         		      bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_NR, cntx ),
 			      true ); 
 
-	//printf("GEMM MICROKERNEL. M: %d, N: %d, K: %d - cs_c: %d, rs_c: %d - alpha: %f, beta: %f\n", m, n, k, cs_c, rs_c, *alpha, *beta);
-
-	//long gvl = __builtin_epi_vsetvl( 8, __epi_e32, __epi_m1 );
-	//long gvl = __builtin_epi_vsetvl( mr, __epi_e64, __epi_m1 );
 	long gvl = __builtin_epi_vsetvl( nr, __epi_e64, __epi_m1 );
 
         unsigned long int vlen = __builtin_epi_vsetvlmax(__epi_e64, __epi_m1);
 
 	__epi_1xf64 alphav;
-	alphav = __builtin_epi_vfmv_v_f_1xf64( *alpha, gvl );
+	alphav = BROADCAST_f64( *alpha, gvl );
 
 	// B vectors.
 	__epi_1xf64 bv00; //, av01, av02, av03;
@@ -95,52 +90,52 @@ void bli_dgemm_epi_scalar_16x1v
 
 
 	// Initialize accummulators to 0.0 (column 0)
-	abv00 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
+	abv00 = BROADCAST_f64( 0.0, gvl );
 
 	// Initialize accummulators to 0.0 (column 1)
-	abv10 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
+	abv10 = BROADCAST_f64( 0.0, gvl );
 
 	// Initialize accummulators to 0.0 (column 2)
-	abv20 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
+	abv20 = BROADCAST_f64( 0.0, gvl );
 
 	// Initialize accummulators to 0.0 (column 3)
-	abv30 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
+	abv30 = BROADCAST_f64( 0.0, gvl );
 
 	// Initialize accummulators to 0.0 (column 4)
-	abv40 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
+	abv40 = BROADCAST_f64( 0.0, gvl );
 
 	// Initialize accummulators to 0.0 (column 5)
-	abv50 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
+	abv50 = BROADCAST_f64( 0.0, gvl );
 
 	// Initialize accummulators to 0.0 (column 6)
-	abv60 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
+	abv60 = BROADCAST_f64( 0.0, gvl );
 
 	// Initialize accummulators to 0.0 (column 7)
-	abv70 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
+	abv70 = BROADCAST_f64( 0.0, gvl );
 
 	// Initialize accummulators to 0.0 (column 8)
-	abv80 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
+	abv80 = BROADCAST_f64( 0.0, gvl );
 
 	// Initialize accummulators to 0.0 (column 9)
-	abv90 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
+	abv90 = BROADCAST_f64( 0.0, gvl );
 
 	// Initialize accummulators to 0.0 (column 10)
-	abva0 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
+	abva0 = BROADCAST_f64( 0.0, gvl );
 
 	// Initialize accummulators to 0.0 (column 11)
-	abvb0 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
+	abvb0 = BROADCAST_f64( 0.0, gvl );
 
 	// Initialize accummulators to 0.0 (column 12)
-	abvc0 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
+	abvc0 = BROADCAST_f64( 0.0, gvl );
 
 	// Initialize accummulators to 0.0 (column 13)
-	abvd0 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
+	abvd0 = BROADCAST_f64( 0.0, gvl );
 
 	// Initialize accummulators to 0.0 (column 14)
-	abve0 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
+	abve0 = BROADCAST_f64( 0.0, gvl );
 
 	// Initialize accummulators to 0.0 (column 15)
-	abvf0 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
+	abvf0 = BROADCAST_f64( 0.0, gvl );
 
 	__epi_1xf64 sav1;
 
@@ -149,52 +144,52 @@ void bli_dgemm_epi_scalar_16x1v
 		// Begin iteration 0
  		bv00 = __builtin_epi_vload_1xf64( b+0*vlen, gvl );
 
- 		sav1 = __builtin_epi_vfmv_v_f_1xf64( *(a), gvl );
+ 		sav1 = BROADCAST_f64( *(a), gvl );
 		abv00 = __builtin_epi_vfmacc_1xf64( abv00, sav1, bv00, gvl );
 
-		sav1 = __builtin_epi_vfmv_v_f_1xf64( *(a+1), gvl );
+		sav1 = BROADCAST_f64( *(a+1), gvl );
 		abv10 = __builtin_epi_vfmacc_1xf64( abv10, sav1, bv00, gvl );
 
- 		sav1 = __builtin_epi_vfmv_v_f_1xf64( *(a+2), gvl );
+ 		sav1 = BROADCAST_f64( *(a+2), gvl );
 		abv20 = __builtin_epi_vfmacc_1xf64( abv20, sav1, bv00, gvl );
 
-		sav1 = __builtin_epi_vfmv_v_f_1xf64( *(a+3), gvl );
+		sav1 = BROADCAST_f64( *(a+3), gvl );
 		abv30 = __builtin_epi_vfmacc_1xf64( abv30, sav1, bv00, gvl );
 
- 		sav1 = __builtin_epi_vfmv_v_f_1xf64( *(a+4), gvl );
+ 		sav1 = BROADCAST_f64( *(a+4), gvl );
 		abv40 = __builtin_epi_vfmacc_1xf64( abv40, sav1, bv00, gvl );
 
-		sav1 = __builtin_epi_vfmv_v_f_1xf64( *(a+5), gvl );
+		sav1 = BROADCAST_f64( *(a+5), gvl );
 		abv50 = __builtin_epi_vfmacc_1xf64( abv50, sav1, bv00, gvl );
 
- 		sav1 = __builtin_epi_vfmv_v_f_1xf64( *(a+6), gvl );
+ 		sav1 = BROADCAST_f64( *(a+6), gvl );
 		abv60 = __builtin_epi_vfmacc_1xf64( abv60, sav1, bv00, gvl );
 
-		sav1 = __builtin_epi_vfmv_v_f_1xf64( *(a+7), gvl );
+		sav1 = BROADCAST_f64( *(a+7), gvl );
 		abv70 = __builtin_epi_vfmacc_1xf64( abv70, sav1, bv00, gvl );
 
- 		sav1 = __builtin_epi_vfmv_v_f_1xf64( *(a+8), gvl );
+ 		sav1 = BROADCAST_f64( *(a+8), gvl );
 		abv80 = __builtin_epi_vfmacc_1xf64( abv80, sav1, bv00, gvl );
 
-		sav1 = __builtin_epi_vfmv_v_f_1xf64( *(a+9), gvl );
+		sav1 = BROADCAST_f64( *(a+9), gvl );
 		abv90 = __builtin_epi_vfmacc_1xf64( abv90, sav1, bv00, gvl );
 
- 		sav1 = __builtin_epi_vfmv_v_f_1xf64( *(a+10), gvl );
+ 		sav1 = BROADCAST_f64( *(a+10), gvl );
 		abva0 = __builtin_epi_vfmacc_1xf64( abva0, sav1, bv00, gvl );
 
-		sav1 = __builtin_epi_vfmv_v_f_1xf64( *(a+11), gvl );
+		sav1 = BROADCAST_f64( *(a+11), gvl );
 		abvb0 = __builtin_epi_vfmacc_1xf64( abvb0, sav1, bv00, gvl );
 
- 		sav1 = __builtin_epi_vfmv_v_f_1xf64( *(a+12), gvl );
+ 		sav1 = BROADCAST_f64( *(a+12), gvl );
 		abvc0 = __builtin_epi_vfmacc_1xf64( abvc0, sav1, bv00, gvl );
 
-		sav1 = __builtin_epi_vfmv_v_f_1xf64( *(a+13), gvl );
+		sav1 = BROADCAST_f64( *(a+13), gvl );
 		abvd0 = __builtin_epi_vfmacc_1xf64( abvd0, sav1, bv00, gvl );
 
- 		sav1 = __builtin_epi_vfmv_v_f_1xf64( *(a+14), gvl );
+ 		sav1 = BROADCAST_f64( *(a+14), gvl );
 		abve0 = __builtin_epi_vfmacc_1xf64( abve0, sav1, bv00, gvl );
 
-		sav1 = __builtin_epi_vfmv_v_f_1xf64( *(a+15), gvl );
+		sav1 = BROADCAST_f64( *(a+15), gvl );
 		abvf0 = __builtin_epi_vfmacc_1xf64( abvf0, sav1, bv00, gvl );
 
 	        // Adjust pointers for next iterations.
@@ -207,28 +202,28 @@ void bli_dgemm_epi_scalar_16x1v
 	{
  		av00 = __builtin_epi_vload_1xf64( a+0*vlen, gvl );
 
- 		sbv1 = __builtin_epi_vfmv_v_f_1xf64( *(b), gvl );
+ 		sbv1 = BROADCAST_f64( *(b), gvl );
 		abv00 = __builtin_epi_vfmacc_1xf64( abv00, sbv1, av00, gvl );
 
-		sbv1 = __builtin_epi_vfmv_v_f_1xf64( *(b+1), gvl );
+		sbv1 = BROADCAST_f64( *(b+1), gvl );
 		abv01 = __builtin_epi_vfmacc_1xf64( abv01, sbv1, av00, gvl );
 
- 		sbv1 = __builtin_epi_vfmv_v_f_1xf64( *(b+2), gvl );
+ 		sbv1 = BROADCAST_f64( *(b+2), gvl );
 		abv02 = __builtin_epi_vfmacc_1xf64( abv02, sbv1, av00, gvl );
 
-		sbv1 = __builtin_epi_vfmv_v_f_1xf64( *(b+3), gvl );
+		sbv1 = BROADCAST_f64( *(b+3), gvl );
 		abv03 = __builtin_epi_vfmacc_1xf64( abv03, sbv1, av00, gvl );
 
- 		sbv1 = __builtin_epi_vfmv_v_f_1xf64( *(b+4), gvl );
+ 		sbv1 = BROADCAST_f64( *(b+4), gvl );
 		abv04 = __builtin_epi_vfmacc_1xf64( abv04, sbv1, av00, gvl );
 
-		sbv1 = __builtin_epi_vfmv_v_f_1xf64( *(b+5), gvl );
+		sbv1 = BROADCAST_f64( *(b+5), gvl );
 		abv05 = __builtin_epi_vfmacc_1xf64( abv05, sbv1, av00, gvl );
 
- 		sbv1 = __builtin_epi_vfmv_v_f_1xf64( *(b+6), gvl );
+ 		sbv1 = BROADCAST_f64( *(b+6), gvl );
 		abv06 = __builtin_epi_vfmacc_1xf64( abv06, sbv1, av00, gvl );
 
-		sbv1 = __builtin_epi_vfmv_v_f_1xf64( *(b+7), gvl );
+		sbv1 = BROADCAST_f64( *(b+7), gvl );
 		abv07 = __builtin_epi_vfmacc_1xf64( abv07, sbv1, av00, gvl );
 
 		a += 1*vlen;
@@ -344,7 +339,7 @@ void bli_dgemm_epi_scalar_16x1v
 	}
 
 	__epi_1xf64 betav;
-	betav = __builtin_epi_vfmv_v_f_1xf64( *beta, gvl );
+	betav = BROADCAST_f64( *beta, gvl );
 
 	cv00 = __builtin_epi_vfmul_1xf64( cv00, betav, gvl );
 	cv10 = __builtin_epi_vfmul_1xf64( cv10, betav, gvl );
@@ -365,22 +360,22 @@ void bli_dgemm_epi_scalar_16x1v
 
 	}
 	else { // Beta == 0
-	  cv00 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
-	  cv10 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
-	  cv20 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
-	  cv30 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
-	  cv40 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
-	  cv50 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
-	  cv60 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
-	  cv70 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
-	  cv80 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
-	  cv90 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
-	  cva0 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
-	  cvb0 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
-	  cvc0 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
-	  cvd0 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
-	  cve0 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
-	  cvf0 = __builtin_epi_vfmv_v_f_1xf64( 0.0, gvl );
+	  cv00 = BROADCAST_f64( 0.0, gvl );
+	  cv10 = BROADCAST_f64( 0.0, gvl );
+	  cv20 = BROADCAST_f64( 0.0, gvl );
+	  cv30 = BROADCAST_f64( 0.0, gvl );
+	  cv40 = BROADCAST_f64( 0.0, gvl );
+	  cv50 = BROADCAST_f64( 0.0, gvl );
+	  cv60 = BROADCAST_f64( 0.0, gvl );
+	  cv70 = BROADCAST_f64( 0.0, gvl );
+	  cv80 = BROADCAST_f64( 0.0, gvl );
+	  cv90 = BROADCAST_f64( 0.0, gvl );
+	  cva0 = BROADCAST_f64( 0.0, gvl );
+	  cvb0 = BROADCAST_f64( 0.0, gvl );
+	  cvc0 = BROADCAST_f64( 0.0, gvl );
+	  cvd0 = BROADCAST_f64( 0.0, gvl );
+	  cve0 = BROADCAST_f64( 0.0, gvl );
+	  cvf0 = BROADCAST_f64( 0.0, gvl );
 	}
 
 	//This segfaults if cv0 = .... ( cv0, ...
