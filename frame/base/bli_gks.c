@@ -202,6 +202,13 @@ void bli_gks_init( void )
 		                                              bli_cntx_init_bgq_ind );
 #endif
 
+	// EPI architecture
+#ifdef BLIS_CONFIG_EPI
+		bli_gks_register_cntx( BLIS_ARCH_EPI,         bli_cntx_init_epi,
+		                                              bli_cntx_init_epi_ref,
+		                                              bli_cntx_init_epi_ind );
+#endif		
+
 		// Generic architectures
 #ifdef BLIS_CONFIG_GENERIC
 		bli_gks_register_cntx( BLIS_ARCH_GENERIC,     bli_cntx_init_generic,

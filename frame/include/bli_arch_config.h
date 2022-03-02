@@ -131,6 +131,13 @@ CNTX_INIT_PROTS( power7 )
 CNTX_INIT_PROTS( bgq )
 #endif
 
+// -- EPI architecture --
+
+#ifdef BLIS_CONFIG_EPI
+CNTX_INIT_PROTS( epi )
+#endif
+
+
 // -- Generic --
 
 #ifdef BLIS_CONFIG_GENERIC
@@ -255,6 +262,12 @@ CNTX_INIT_PROTS( generic )
 #include "bli_family_bgq.h"
 #endif
 
+// -- EPI architectures --
+
+#ifdef BLIS_FAMILY_EPI
+#include "bli_family_epi.h"
+#endif
+
 // -- Generic --
 
 #ifdef BLIS_FAMILY_GENERIC
@@ -336,6 +349,13 @@ CNTX_INIT_PROTS( generic )
 #ifdef BLIS_KERNELS_BGQ
 #include "bli_kernels_bgq.h"
 #endif
+
+// -- EPI architecture --
+
+#ifdef BLIS_KERNELS_EPI
+#include "bli_kernels_epi.h"
+#endif
+
 
 
 

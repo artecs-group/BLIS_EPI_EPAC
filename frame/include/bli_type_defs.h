@@ -963,6 +963,9 @@ typedef enum
 	BLIS_ARCH_POWER7,
 	BLIS_ARCH_BGQ,
 
+	// EPI
+	BLIS_ARCH_EPI,
+
 	// Generic architecture/configuration
 	BLIS_ARCH_GENERIC,
 

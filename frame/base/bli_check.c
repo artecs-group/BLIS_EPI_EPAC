@@ -835,7 +835,6 @@ err_t bli_check_sufficient_stack_buf_size( cntx_t* cntx )
 		// the macro-kernel needs this larger micro-tile footprint, even if the
 		// virtual micro-kernel implementation will only ever be writing to half
 		// of it (real or imaginary part) at a time.
-
 		if ( mr * nr * dt_size > BLIS_STACK_BUF_MAX_SIZE )
 			e_val = BLIS_INSUFFICIENT_STACK_BUF_SIZE;
 	}
