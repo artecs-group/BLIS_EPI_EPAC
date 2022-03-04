@@ -12,9 +12,9 @@ void bli_dgemmtrsm_u_epi_scalar_16x1v
        dim_t                n,
        dim_t                k0,
        double*     restrict alpha,
-       double*     restrict a10,
+       double*     restrict a12,
        double*     restrict a11,
-       double*     restrict b01,
+       double*     restrict b21,
        double*     restrict b11,
        double*     restrict c11, inc_t rs_c0, inc_t cs_c0,
        auxinfo_t* restrict data,
@@ -149,61 +149,61 @@ void bli_dgemmtrsm_u_epi_scalar_16x1v
 	for ( i = 0; i < k_iter; ++i )
 	{
 		// Begin iteration 0
- 		bv00 = __builtin_epi_vload_1xf64( b01+0*vlen, gvl );
+ 		bv00 = __builtin_epi_vload_1xf64( b21+0*vlen, gvl );
 
- 		sav1 = BROADCAST_f64( *(a10), gvl );
+ 		sav1 = BROADCAST_f64( *(a12), gvl );
 		abv00 = __builtin_epi_vfmacc_1xf64( abv00, sav1, bv00, gvl );
 
-		sav1 = BROADCAST_f64( *(a10+1), gvl );
+		sav1 = BROADCAST_f64( *(a12+1), gvl );
 		abv10 = __builtin_epi_vfmacc_1xf64( abv10, sav1, bv00, gvl );
 
- 		sav1 = BROADCAST_f64( *(a10+2), gvl );
+ 		sav1 = BROADCAST_f64( *(a12+2), gvl );
 		abv20 = __builtin_epi_vfmacc_1xf64( abv20, sav1, bv00, gvl );
 
-		sav1 = BROADCAST_f64( *(a10+3), gvl );
+		sav1 = BROADCAST_f64( *(a12+3), gvl );
 		abv30 = __builtin_epi_vfmacc_1xf64( abv30, sav1, bv00, gvl );
 
- 		sav1 = BROADCAST_f64( *(a10+4), gvl );
+ 		sav1 = BROADCAST_f64( *(a12+4), gvl );
 		abv40 = __builtin_epi_vfmacc_1xf64( abv40, sav1, bv00, gvl );
 
-		sav1 = BROADCAST_f64( *(a10+5), gvl );
+		sav1 = BROADCAST_f64( *(a12+5), gvl );
 		abv50 = __builtin_epi_vfmacc_1xf64( abv50, sav1, bv00, gvl );
 
- 		sav1 = BROADCAST_f64( *(a10+6), gvl );
+ 		sav1 = BROADCAST_f64( *(a12+6), gvl );
 		abv60 = __builtin_epi_vfmacc_1xf64( abv60, sav1, bv00, gvl );
 
-		sav1 = BROADCAST_f64( *(a10+7), gvl );
+		sav1 = BROADCAST_f64( *(a12+7), gvl );
 		abv70 = __builtin_epi_vfmacc_1xf64( abv70, sav1, bv00, gvl );
 
- 		sav1 = BROADCAST_f64( *(a10+8), gvl );
+ 		sav1 = BROADCAST_f64( *(a12+8), gvl );
 		abv80 = __builtin_epi_vfmacc_1xf64( abv80, sav1, bv00, gvl );
 
-		sav1 = BROADCAST_f64( *(a10+9), gvl );
+		sav1 = BROADCAST_f64( *(a12+9), gvl );
 		abv90 = __builtin_epi_vfmacc_1xf64( abv90, sav1, bv00, gvl );
 
- 		sav1 = BROADCAST_f64( *(a10+10), gvl );
+ 		sav1 = BROADCAST_f64( *(a12+10), gvl );
 		abva0 = __builtin_epi_vfmacc_1xf64( abva0, sav1, bv00, gvl );
 
-		sav1 = BROADCAST_f64( *(a10+11), gvl );
+		sav1 = BROADCAST_f64( *(a12+11), gvl );
 		abvb0 = __builtin_epi_vfmacc_1xf64( abvb0, sav1, bv00, gvl );
 
- 		sav1 = BROADCAST_f64( *(a10+12), gvl );
+ 		sav1 = BROADCAST_f64( *(a12+12), gvl );
 		abvc0 = __builtin_epi_vfmacc_1xf64( abvc0, sav1, bv00, gvl );
 
-		sav1 = BROADCAST_f64( *(a10+13), gvl );
+		sav1 = BROADCAST_f64( *(a12+13), gvl );
 		abvd0 = __builtin_epi_vfmacc_1xf64( abvd0, sav1, bv00, gvl );
 
- 		sav1 = BROADCAST_f64( *(a10+14), gvl );
+ 		sav1 = BROADCAST_f64( *(a12+14), gvl );
 		abve0 = __builtin_epi_vfmacc_1xf64( abve0, sav1, bv00, gvl );
 
-		sav1 = BROADCAST_f64( *(a10+15), gvl );
+		sav1 = BROADCAST_f64( *(a12+15), gvl );
 		abvf0 = __builtin_epi_vfmacc_1xf64( abvf0, sav1, bv00, gvl );
 
 	        // Adjust pointers for next iterations.
-	        //b01 += 1 * vlen * 1; // 1 vectors + 1 Unroll factor
-	        b01 += nr; // 1 vectors + 1 Unroll factor
-		//a10 += 16;
-		a10 += mr;
+	        //b21 += 1 * vlen * 1; // 1 vectors + 1 Unroll factor
+	        b21 += nr; // 1 vectors + 1 Unroll factor
+		//a12 += 16;
+		a12 += mr;
 	}
 	
 	//printf("Done loop\n");
@@ -242,13 +242,13 @@ void bli_dgemmtrsm_u_epi_scalar_16x1v
 	}
 #endif
 
-	// b11 := alpha * b11 - a10 * b01
+	// b11 := alpha * b11 - a12 * b21
 	//
 	// Load alpha and duplicate
 	//__epi_1xf64 alphav;
 	//alphav = BROADCAST_f64( *alpha, gvl );
 
-	// b11 := alpha * b11 - a10 * b01
+	// b11 := alpha * b11 - a12 * b21
  	cv00 = __builtin_epi_vload_1xf64( b11+0*nr, gvl );
 	cv00 = __builtin_epi_vfmsub_1xf64( cv00, alphav, abv00, gvl );
  	       //__builtin_epi_vstore_1xf64( b11+0*nr, cv00, gvl );
@@ -333,428 +333,45 @@ void bli_dgemmtrsm_u_epi_scalar_16x1v
 	//
 	// Iteration 0  --------------------------------------------
 	//
- 	__epi_1xf64 alpha00 = BROADCAST_f64( *(a11), gvl ); // (1/alpha00)
-	//printf("Alpha00: %le\n", *a11);
+	__epi_1xf64 alphaff = BROADCAST_f64( *(a11 + 15 + 15 * 16), gvl ); // (alphaff)
 
 #ifdef BLIS_ENABLE_TRSM_PREINVERSION
-	cv00 = __builtin_epi_vfmul_1xf64( cv00, alpha00, gvl ); // cv00 *= (1/alpha00)
+	cvf0 = __builtin_epi_vfmul_1xf64( cvf0, alphaff, gvl ); // cvf0 *= (1/alphaff)
 #else
-	cv00 = __builtin_epi_vfdiv_1xf64( cv00, alpha00, gvl ); // cv00 /= alpha00
+	cvf0 = __builtin_epi_vfdiv_1xf64( cvf0, alphaff, gvl ); // cvf0 /= alphaff
 #endif
-	//printf("B00 prev: %le\n", *b11);
 
-	__builtin_epi_vstore_1xf64( b11 + 0*nr + 0*cs_c+0*vlen, cv00, gvl ); // Store row 1 of b11
-
-	//printf("B00 post: %le\n", *b11);
+	__builtin_epi_vstore_1xf64( b11 + 15*nr + 0*cs_c+0*vlen, cvf0, gvl ); // Store row 15 of b11
 
 	//
 	// Iteration 1  --------------------------------------------
 	//
-	__epi_1xf64 alpha10 = BROADCAST_f64( *(a11 + 1 + 0 * 16), gvl ); // (alpha10)
-	////printf("Alpha10: %le\n", *(a11 + 1 + 0*16));
-	__epi_1xf64 alpha11 = BROADCAST_f64( *(a11 + 1 + 1 * 16), gvl ); // (1/alpha11)
-	//printf("Alpha11: %le\n", *(a11+1+1*16));
+	__epi_1xf64 alphaef = BROADCAST_f64( *(a11 + 14 + 15 * 16), gvl ); // (alphaef)
+	__epi_1xf64 alphaee = BROADCAST_f64( *(a11 + 14 + 14 * 16), gvl ); // (alphaee)
 
-	__epi_1xf64 cv00b = __builtin_epi_vfmul_1xf64( cv00, alpha10, gvl );  // Scale row 1 of B11
+	__epi_1xf64 accum = __builtin_epi_vfmul_1xf64( cvf0, alphaef, gvl );  // Scale row 1 of B11
 
-	cv10  = __builtin_epi_vfsub_1xf64( cv10, cv00b, gvl );    // Update row 2 of B11
+	cve0  = __builtin_epi_vfsub_1xf64( cve0, accum, gvl );    // Update row 14 of B11
 
 #ifdef BLIS_ENABLE_TRSM_PREINVERSION
-	cv10 = __builtin_epi_vfmul_1xf64( cv10, alpha11, gvl ); // abv0 *= alpha00
+	cve0 = __builtin_epi_vfmul_1xf64( cve0, alphaee, gvl ); // abv0 *= (1/alphaee)
 #else
-	cv10 = __builtin_epi_vfdiv_1xf64( cv10, alpha11, gvl ); // abv0 *= alpha00
+	cve0 = __builtin_epi_vfdiv_1xf64( cve0, alphaee, gvl ); // abv0 /= alphaee
 #endif
 
-	__builtin_epi_vstore_1xf64( b11 + 1*nr + 0*cs_c+0*vlen, cv10, gvl ); // Store row 2 of b11
-	//////printf("B10 post: %le\n", *(b11 + 1*nr));
-
+	__builtin_epi_vstore_1xf64( b11 + 14*nr + 0*cs_c+0*vlen, cve0, gvl ); // Store row 14 of b11
 
 	//
 	// Iteration 2  --------------------------------------------
 	//
-	__epi_1xf64 alpha20 = BROADCAST_f64( *(a11 + 2 + 0 * 16), gvl ); // (alpha20)
-	__epi_1xf64 alpha21 = BROADCAST_f64( *(a11 + 2 + 1 * 16), gvl ); // (alpha21)
-	__epi_1xf64 alpha22 = BROADCAST_f64( *(a11 + 2 + 2 * 16), gvl ); // (1/alpha22)
-	//printf("Alpha22: %le\n", *(a11+2+2*16));
+	__epi_1xf64 alphadf = BROADCAST_f64( *(a11 + 13 + 15 * 16), gvl ); // (alphadf)
+	__epi_1xf64 alphade = BROADCAST_f64( *(a11 + 13 + 14 * 16), gvl ); // (alphade)
+	__epi_1xf64 alphadd = BROADCAST_f64( *(a11 + 13 + 13 * 16), gvl ); // (alphadd)
 
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alpha20, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha21, cv10, gvl );    // 
+	accum = __builtin_epi_vfmul_1xf64( cvf0, alphadf, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphade, cve0, gvl );    // 
 
-	cv20 = __builtin_epi_vfsub_1xf64( cv20, cv00b, gvl );    // 
-
-#ifdef BLIS_ENABLE_TRSM_PREINVERSION
-	cv20 = __builtin_epi_vfmul_1xf64( cv20, alpha22, gvl ); // abv0 *= alpha00
-#else
-	cv20 = __builtin_epi_vfdiv_1xf64( cv20, alpha22, gvl ); // abv0 *= alpha00
-#endif
-
-	__builtin_epi_vstore_1xf64( b11 + 2*nr + 0*cs_c+0*vlen, cv20, gvl ); // Store row 3 of b11
-
-	//
-	// Iteration 3  --------------------------------------------
-	//
-	__epi_1xf64 alpha30 = BROADCAST_f64( *(a11 + 3 + 0 * 16), gvl ); // (alpha30)
-	__epi_1xf64 alpha31 = BROADCAST_f64( *(a11 + 3 + 1 * 16), gvl ); // (alpha31)
-	__epi_1xf64 alpha32 = BROADCAST_f64( *(a11 + 3 + 2 * 16), gvl ); // (alpha32)
-	__epi_1xf64 alpha33 = BROADCAST_f64( *(a11 + 3 + 3 * 16), gvl ); // (1/alpha33)
-	//printf("Alpha33: %le\n", *(a11+3+3*16));
-
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alpha30, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha31, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha32, cv20, gvl );    // 
-
-	cv30 = __builtin_epi_vfsub_1xf64( cv30, cv00b, gvl );    // 
-
-#ifdef BLIS_ENABLE_TRSM_PREINVERSION
-	cv30 = __builtin_epi_vfmul_1xf64( cv30, alpha33, gvl ); // abv0 *= alpha00
-#else
-	cv30 = __builtin_epi_vfdiv_1xf64( cv30, alpha33, gvl ); // abv0 *= alpha00
-#endif
-
-	__builtin_epi_vstore_1xf64( b11 + 3*nr + 0*cs_c+0*vlen, cv30, gvl ); // Store row 4 of b11
-
-
-	//
-	// Iteration 4  --------------------------------------------
-	//
-	__epi_1xf64 alpha40 = BROADCAST_f64( *(a11 + 4 + 0 * 16), gvl ); // (alpha40)
-	__epi_1xf64 alpha41 = BROADCAST_f64( *(a11 + 4 + 1 * 16), gvl ); // (alpha41)
-	__epi_1xf64 alpha42 = BROADCAST_f64( *(a11 + 4 + 2 * 16), gvl ); // (alpha42)
-	__epi_1xf64 alpha43 = BROADCAST_f64( *(a11 + 4 + 3 * 16), gvl ); // (alpha43)
-	__epi_1xf64 alpha44 = BROADCAST_f64( *(a11 + 4 + 4 * 16), gvl ); // (1/alpha44)
-	//printf("Alpha44: %le\n", *(a11+4+4*16));
-
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alpha40, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha41, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha42, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha43, cv30, gvl );    // 
-
-	cv40 = __builtin_epi_vfsub_1xf64( cv40, cv00b, gvl );    // 
-
-#ifdef BLIS_ENABLE_TRSM_PREINVERSION
-	cv40 = __builtin_epi_vfmul_1xf64( cv40, alpha44, gvl ); // abv0 *= alpha00
-#else
-	cv40 = __builtin_epi_vfdiv_1xf64( cv40, alpha44, gvl ); // abv0 *= alpha00
-#endif
-
-	__builtin_epi_vstore_1xf64( b11 + 4*nr + 0*cs_c+0*vlen, cv40, gvl ); // Store row 5 of b11
-
-
-	//
-	// Iteration 5  --------------------------------------------
-	//
-	__epi_1xf64 alpha50 = BROADCAST_f64( *(a11 + 5 + 0 * 16), gvl ); // (alpha50)
-	__epi_1xf64 alpha51 = BROADCAST_f64( *(a11 + 5 + 1 * 16), gvl ); // (alpha51)
-	__epi_1xf64 alpha52 = BROADCAST_f64( *(a11 + 5 + 2 * 16), gvl ); // (alpha52)
-	__epi_1xf64 alpha53 = BROADCAST_f64( *(a11 + 5 + 3 * 16), gvl ); // (alpha53)
-	__epi_1xf64 alpha54 = BROADCAST_f64( *(a11 + 5 + 4 * 16), gvl ); // (alpha54)
-	__epi_1xf64 alpha55 = BROADCAST_f64( *(a11 + 5 + 5 * 16), gvl ); // (1/alpha55)
-	//printf("Alpha55: %le\n", *(a11+5+5*16));
-
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alpha50, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha51, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha52, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha53, cv30, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha54, cv40, gvl );    // 
-
-	cv50 = __builtin_epi_vfsub_1xf64( cv50, cv00b, gvl );    // 
-
-#ifdef BLIS_ENABLE_TRSM_PREINVERSION
-	cv50 = __builtin_epi_vfmul_1xf64( cv50, alpha55, gvl ); // abv0 *= alpha00
-#else
-	cv50 = __builtin_epi_vfdiv_1xf64( cv50, alpha55, gvl ); // abv0 *= alpha00
-#endif
-
-	__builtin_epi_vstore_1xf64( b11 + 5*nr + 0*cs_c+0*vlen, cv50, gvl ); // Store row 6 of b11
-
-
-	//
-	// Iteration 6  --------------------------------------------
-	//
-	__epi_1xf64 alpha60 = BROADCAST_f64( *(a11 + 6 + 0 * 16), gvl ); // (alpha60)
-	__epi_1xf64 alpha61 = BROADCAST_f64( *(a11 + 6 + 1 * 16), gvl ); // (alpha61)
-	__epi_1xf64 alpha62 = BROADCAST_f64( *(a11 + 6 + 2 * 16), gvl ); // (alpha62)
-	__epi_1xf64 alpha63 = BROADCAST_f64( *(a11 + 6 + 3 * 16), gvl ); // (alpha63)
-	__epi_1xf64 alpha64 = BROADCAST_f64( *(a11 + 6 + 4 * 16), gvl ); // (alpha64)
-	__epi_1xf64 alpha65 = BROADCAST_f64( *(a11 + 6 + 5 * 16), gvl ); // (alpha65)
-	__epi_1xf64 alpha66 = BROADCAST_f64( *(a11 + 6 + 6 * 16), gvl ); // (1/alpha66)
-	//printf("Alpha66: %le\n", *(a11+6+6*16));
-
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alpha60, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha61, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha62, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha63, cv30, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha64, cv40, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha65, cv50, gvl );    // 
-
-	cv60 = __builtin_epi_vfsub_1xf64( cv60, cv00b, gvl );    // 
-
-#ifdef BLIS_ENABLE_TRSM_PREINVERSION
-	cv60 = __builtin_epi_vfmul_1xf64( cv60, alpha66, gvl ); // abv0 *= alpha00
-#else
-	cv60 = __builtin_epi_vfdiv_1xf64( cv60, alpha66, gvl ); // abv0 *= alpha00
-#endif
-
-	__builtin_epi_vstore_1xf64( b11 + 6*nr + 0*cs_c+0*vlen, cv60, gvl ); // Store row 7 of b11
-
-
-
-	//
-	// Iteration 7  --------------------------------------------
-	//
-	__epi_1xf64 alpha70 = BROADCAST_f64( *(a11 + 7 + 0 * 16), gvl ); // (alpha70)
-	__epi_1xf64 alpha71 = BROADCAST_f64( *(a11 + 7 + 1 * 16), gvl ); // (alpha71)
-	__epi_1xf64 alpha72 = BROADCAST_f64( *(a11 + 7 + 2 * 16), gvl ); // (alpha72)
-	__epi_1xf64 alpha73 = BROADCAST_f64( *(a11 + 7 + 3 * 16), gvl ); // (alpha73)
-	__epi_1xf64 alpha74 = BROADCAST_f64( *(a11 + 7 + 4 * 16), gvl ); // (alpha74)
-	__epi_1xf64 alpha75 = BROADCAST_f64( *(a11 + 7 + 5 * 16), gvl ); // (alpha75)
-	__epi_1xf64 alpha76 = BROADCAST_f64( *(a11 + 7 + 6 * 16), gvl ); // (alpha76)
-	__epi_1xf64 alpha77 = BROADCAST_f64( *(a11 + 7 + 7 * 16), gvl ); // (1/alpha77)
-	//printf("Alpha77: %le\n", *(a11+7+7*16));
-
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alpha70, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha71, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha72, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha73, cv30, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha74, cv40, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha75, cv50, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha76, cv60, gvl );    // 
-
-	cv70 = __builtin_epi_vfsub_1xf64( cv70, cv00b, gvl );    // 
-
-#ifdef BLIS_ENABLE_TRSM_PREINVERSION
-	cv70 = __builtin_epi_vfmul_1xf64( cv70, alpha77, gvl ); // abv0 *= alpha00
-#else
-	cv70 = __builtin_epi_vfdiv_1xf64( cv70, alpha77, gvl ); // abv0 *= alpha00
-#endif
-
-	__builtin_epi_vstore_1xf64( b11 + 7*nr + 0*cs_c+0*vlen, cv70, gvl ); // Store row 8 of b11
-
-
-	//
-	// Iteration 8  --------------------------------------------
-	//
-	__epi_1xf64 alpha80 = BROADCAST_f64( *(a11 + 8 + 0 * 16), gvl ); // (alpha80)
-	__epi_1xf64 alpha81 = BROADCAST_f64( *(a11 + 8 + 1 * 16), gvl ); // (alpha81)
-	__epi_1xf64 alpha82 = BROADCAST_f64( *(a11 + 8 + 2 * 16), gvl ); // (alpha82)
-	__epi_1xf64 alpha83 = BROADCAST_f64( *(a11 + 8 + 3 * 16), gvl ); // (alpha83)
-	__epi_1xf64 alpha84 = BROADCAST_f64( *(a11 + 8 + 4 * 16), gvl ); // (alpha84)
-	__epi_1xf64 alpha85 = BROADCAST_f64( *(a11 + 8 + 5 * 16), gvl ); // (alpha85)
-	__epi_1xf64 alpha86 = BROADCAST_f64( *(a11 + 8 + 6 * 16), gvl ); // (alpha86)
-	__epi_1xf64 alpha87 = BROADCAST_f64( *(a11 + 8 + 7 * 16), gvl ); // (alpha87)
-	__epi_1xf64 alpha88 = BROADCAST_f64( *(a11 + 8 + 8 * 16), gvl ); // (1/alpha88)
-	//printf("Alpha88: %le\n", *(a11+8+8*16));
-
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alpha80, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha81, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha82, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha83, cv30, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha84, cv40, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha85, cv50, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha86, cv60, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha87, cv70, gvl );    // 
-
-	cv80 = __builtin_epi_vfsub_1xf64( cv80, cv00b, gvl );    // 
-
-#ifdef BLIS_ENABLE_TRSM_PREINVERSION
-	cv80 = __builtin_epi_vfmul_1xf64( cv80, alpha88, gvl ); // abv0 *= alpha00
-#else
-	cv80 = __builtin_epi_vfdiv_1xf64( cv80, alpha88, gvl ); // abv0 *= alpha00
-#endif
-
-	__builtin_epi_vstore_1xf64( b11 + 8*nr + 0*cs_c+0*vlen, cv80, gvl ); // Store row 9 of b11
-
-
-	//
-	// Iteration 9  --------------------------------------------
-	//
-	__epi_1xf64 alpha90 = BROADCAST_f64( *(a11 + 9 + 0 * 16), gvl ); // (alpha90)
-	__epi_1xf64 alpha91 = BROADCAST_f64( *(a11 + 9 + 1 * 16), gvl ); // (alpha91)
-	__epi_1xf64 alpha92 = BROADCAST_f64( *(a11 + 9 + 2 * 16), gvl ); // (alpha92)
-	__epi_1xf64 alpha93 = BROADCAST_f64( *(a11 + 9 + 3 * 16), gvl ); // (alpha93)
-	__epi_1xf64 alpha94 = BROADCAST_f64( *(a11 + 9 + 4 * 16), gvl ); // (alpha94)
-	__epi_1xf64 alpha95 = BROADCAST_f64( *(a11 + 9 + 5 * 16), gvl ); // (alpha95)
-	__epi_1xf64 alpha96 = BROADCAST_f64( *(a11 + 9 + 6 * 16), gvl ); // (alpha96)
-	__epi_1xf64 alpha97 = BROADCAST_f64( *(a11 + 9 + 7 * 16), gvl ); // (alpha97)
-	__epi_1xf64 alpha98 = BROADCAST_f64( *(a11 + 9 + 8 * 16), gvl ); // (alpha98)
-	__epi_1xf64 alpha99 = BROADCAST_f64( *(a11 + 9 + 9 * 16), gvl ); // (1/alpha99)
-	//printf("Alpha99: %le\n", *(a11+9+9*16));
-
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alpha90, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha91, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha92, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha93, cv30, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha94, cv40, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha95, cv50, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha96, cv60, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha97, cv70, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha98, cv80, gvl );    // 
-
-	cv90 = __builtin_epi_vfsub_1xf64( cv90, cv00b, gvl );    // 
-
-#ifdef BLIS_ENABLE_TRSM_PREINVERSION
-	cv90 = __builtin_epi_vfmul_1xf64( cv90, alpha99, gvl ); // abv0 *= alpha00
-#else
-	cv90 = __builtin_epi_vfdiv_1xf64( cv90, alpha99, gvl ); // abv0 *= alpha00
-#endif
-
-	__builtin_epi_vstore_1xf64( b11 + 9*nr + 0*cs_c+0*vlen, cv90, gvl ); // Store row 10 of b11
-
-
-	//
-	// Iteration 10 --------------------------------------------
-	//
-	__epi_1xf64 alphaa0 = BROADCAST_f64( *(a11 + 10 + 0 * 16), gvl ); // (alphaa0)
-	__epi_1xf64 alphaa1 = BROADCAST_f64( *(a11 + 10 + 1 * 16), gvl ); // (alphaa1)
-	__epi_1xf64 alphaa2 = BROADCAST_f64( *(a11 + 10 + 2 * 16), gvl ); // (alphaa2)
-	__epi_1xf64 alphaa3 = BROADCAST_f64( *(a11 + 10 + 3 * 16), gvl ); // (alphaa3)
-	__epi_1xf64 alphaa4 = BROADCAST_f64( *(a11 + 10 + 4 * 16), gvl ); // (alphaa4)
-	__epi_1xf64 alphaa5 = BROADCAST_f64( *(a11 + 10 + 5 * 16), gvl ); // (alphaa5)
-	__epi_1xf64 alphaa6 = BROADCAST_f64( *(a11 + 10 + 6 * 16), gvl ); // (alphaa6)
-	__epi_1xf64 alphaa7 = BROADCAST_f64( *(a11 + 10 + 7 * 16), gvl ); // (alphaa7)
-	__epi_1xf64 alphaa8 = BROADCAST_f64( *(a11 + 10 + 8 * 16), gvl ); // (alphaa8)
-	__epi_1xf64 alphaa9 = BROADCAST_f64( *(a11 + 10 + 9 * 16), gvl ); // (alphaa9)
-	__epi_1xf64 alphaaa = BROADCAST_f64( *(a11 + 10 + 10 * 16), gvl ); // (1/alphaaa)
-	//printf("Alphaaa: %le\n", *(a11+10+10*16));
-
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alphaa0, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaa1, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaa2, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaa3, cv30, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaa4, cv40, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaa5, cv50, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaa6, cv60, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaa7, cv70, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaa8, cv80, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaa9, cv90, gvl );    // 
-
-	cva0 = __builtin_epi_vfsub_1xf64( cva0, cv00b, gvl );    // 
-
-#ifdef BLIS_ENABLE_TRSM_PREINVERSION
-	cva0 = __builtin_epi_vfmul_1xf64( cva0, alphaaa, gvl ); // abv0 *= alpha00
-#else
-	cva0 = __builtin_epi_vfdiv_1xf64( cva0, alphaaa, gvl ); // abv0 *= alpha00
-#endif
-
-	__builtin_epi_vstore_1xf64( b11 + 10*nr + 0*cs_c+0*vlen, cva0, gvl ); // Store row 11 of b11
-
-
-	//
-	// Iteration 11 --------------------------------------------
-	//
-	__epi_1xf64 alphab0 = BROADCAST_f64( *(a11 + 11 + 0 * 16), gvl ); // (alphab0)
-	__epi_1xf64 alphab1 = BROADCAST_f64( *(a11 + 11 + 1 * 16), gvl ); // (alphab1)
-	__epi_1xf64 alphab2 = BROADCAST_f64( *(a11 + 11 + 2 * 16), gvl ); // (alphab2)
-	__epi_1xf64 alphab3 = BROADCAST_f64( *(a11 + 11 + 3 * 16), gvl ); // (alphab3)
-	__epi_1xf64 alphab4 = BROADCAST_f64( *(a11 + 11 + 4 * 16), gvl ); // (alphab4)
-	__epi_1xf64 alphab5 = BROADCAST_f64( *(a11 + 11 + 5 * 16), gvl ); // (alphab5)
-	__epi_1xf64 alphab6 = BROADCAST_f64( *(a11 + 11 + 6 * 16), gvl ); // (alphab6)
-	__epi_1xf64 alphab7 = BROADCAST_f64( *(a11 + 11 + 7 * 16), gvl ); // (alphab7)
-	__epi_1xf64 alphab8 = BROADCAST_f64( *(a11 + 11 + 8 * 16), gvl ); // (alphab8)
-	__epi_1xf64 alphab9 = BROADCAST_f64( *(a11 + 11 + 9 * 16), gvl ); // (alphab9)
-	__epi_1xf64 alphaba = BROADCAST_f64( *(a11 + 11 + 10 * 16), gvl ); // (alphaba)
-	__epi_1xf64 alphabb = BROADCAST_f64( *(a11 + 11 + 11 * 16), gvl ); // (1/alphabb)
-	//printf("Alphabb: %le\n", *(a11+11+11*16));
-
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alphab0, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphab1, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphab2, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphab3, cv30, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphab4, cv40, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphab5, cv50, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphab6, cv60, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphab7, cv70, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphab8, cv80, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphab9, cv90, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaba, cva0, gvl );    // 
-
-	cvb0 = __builtin_epi_vfsub_1xf64( cvb0, cv00b, gvl );    // 
-
-#ifdef BLIS_ENABLE_TRSM_PREINVERSION
-	cvb0 = __builtin_epi_vfmul_1xf64( cvb0, alphabb, gvl ); // abv0 *= alpha00
-#else
-	cvb0 = __builtin_epi_vfdiv_1xf64( cvb0, alphabb, gvl ); // abv0 *= alpha00
-#endif
-
-	__builtin_epi_vstore_1xf64( b11 + 11*nr + 0*cs_c+0*vlen, cvb0, gvl ); // Store row 12 of b11
-
-
-	//
-	// Iteration 12 --------------------------------------------
-	//
-	__epi_1xf64 alphac0 = BROADCAST_f64( *(a11 + 12 + 0 * 16), gvl ); // (alphac0)
-	__epi_1xf64 alphac1 = BROADCAST_f64( *(a11 + 12 + 1 * 16), gvl ); // (alphac1)
-	__epi_1xf64 alphac2 = BROADCAST_f64( *(a11 + 12 + 2 * 16), gvl ); // (alphac2)
-	__epi_1xf64 alphac3 = BROADCAST_f64( *(a11 + 12 + 3 * 16), gvl ); // (alphac3)
-	__epi_1xf64 alphac4 = BROADCAST_f64( *(a11 + 12 + 4 * 16), gvl ); // (alphac4)
-	__epi_1xf64 alphac5 = BROADCAST_f64( *(a11 + 12 + 5 * 16), gvl ); // (alphac5)
-	__epi_1xf64 alphac6 = BROADCAST_f64( *(a11 + 12 + 6 * 16), gvl ); // (alphac6)
-	__epi_1xf64 alphac7 = BROADCAST_f64( *(a11 + 12 + 7 * 16), gvl ); // (alphac7)
-	__epi_1xf64 alphac8 = BROADCAST_f64( *(a11 + 12 + 8 * 16), gvl ); // (alphac8)
-	__epi_1xf64 alphac9 = BROADCAST_f64( *(a11 + 12 + 9 * 16), gvl ); // (alphac9)
-	__epi_1xf64 alphaca = BROADCAST_f64( *(a11 + 12 + 10 * 16), gvl ); // (alphaca)
-	__epi_1xf64 alphacb = BROADCAST_f64( *(a11 + 12 + 11 * 16), gvl ); // (alphacb)
-	__epi_1xf64 alphacc = BROADCAST_f64( *(a11 + 12 + 12 * 16), gvl ); // (1/alphacc)
-	//printf("Alphacc: %le\n", *(a11+12+12*16));
-
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alphac0, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphac1, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphac2, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphac3, cv30, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphac4, cv40, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphac5, cv50, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphac6, cv60, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphac7, cv70, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphac8, cv80, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphac9, cv90, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaca, cva0, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphacb, cvb0, gvl );    // 
-
-	cvc0 = __builtin_epi_vfsub_1xf64( cvc0, cv00b, gvl );    // 
-
-#ifdef BLIS_ENABLE_TRSM_PREINVERSION
-	cvc0 = __builtin_epi_vfmul_1xf64( cvc0, alphacc, gvl ); // abv0 *= alpha00
-#else
-	cvc0 = __builtin_epi_vfdiv_1xf64( cvc0, alphacc, gvl ); // abv0 *= alpha00
-#endif
-
-	__builtin_epi_vstore_1xf64( b11 + 12*nr + 0*cs_c+0*vlen, cvc0, gvl ); // Store row 13 of b11
-
-
-	//
-	// Iteration 13 --------------------------------------------
-	//
-	__epi_1xf64 alphad0 = BROADCAST_f64( *(a11 + 13 + 0 * 16), gvl ); // (alphad0)
-	__epi_1xf64 alphad1 = BROADCAST_f64( *(a11 + 13 + 1 * 16), gvl ); // (alphad1)
-	__epi_1xf64 alphad2 = BROADCAST_f64( *(a11 + 13 + 2 * 16), gvl ); // (alphad2)
-	__epi_1xf64 alphad3 = BROADCAST_f64( *(a11 + 13 + 3 * 16), gvl ); // (alphad3)
-	__epi_1xf64 alphad4 = BROADCAST_f64( *(a11 + 13 + 4 * 16), gvl ); // (alphad4)
-	__epi_1xf64 alphad5 = BROADCAST_f64( *(a11 + 13 + 5 * 16), gvl ); // (alphad5)
-	__epi_1xf64 alphad6 = BROADCAST_f64( *(a11 + 13 + 6 * 16), gvl ); // (alphad6)
-	__epi_1xf64 alphad7 = BROADCAST_f64( *(a11 + 13 + 7 * 16), gvl ); // (alphad7)
-	__epi_1xf64 alphad8 = BROADCAST_f64( *(a11 + 13 + 8 * 16), gvl ); // (alphad8)
-	__epi_1xf64 alphad9 = BROADCAST_f64( *(a11 + 13 + 9 * 16), gvl ); // (alphad9)
-	__epi_1xf64 alphada = BROADCAST_f64( *(a11 + 13 + 10 * 16), gvl ); // (alphada)
-	__epi_1xf64 alphadb = BROADCAST_f64( *(a11 + 13 + 11 * 16), gvl ); // (alphadb)
-	__epi_1xf64 alphadc = BROADCAST_f64( *(a11 + 13 + 12 * 16), gvl ); // (alphadc)
-	__epi_1xf64 alphadd = BROADCAST_f64( *(a11 + 13 + 13 * 16), gvl ); // (1/alphadd)
-	//printf("Alphadd: %le\n", *(a11+13+13*16));
-
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alphad0, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphad1, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphad2, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphad3, cv30, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphad4, cv40, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphad5, cv50, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphad6, cv60, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphad7, cv70, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphad8, cv80, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphad9, cv90, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphada, cva0, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphadb, cvb0, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphadc, cvc0, gvl );    // 
-
-	cvd0 = __builtin_epi_vfsub_1xf64( cvd0, cv00b, gvl );    // 
+	cvd0 = __builtin_epi_vfsub_1xf64( cvd0, accum, gvl );    // 
 
 #ifdef BLIS_ENABLE_TRSM_PREINVERSION
 	cvd0 = __builtin_epi_vfmul_1xf64( cvd0, alphadd, gvl ); // abv0 *= alpha00
@@ -762,101 +379,462 @@ void bli_dgemmtrsm_u_epi_scalar_16x1v
 	cvd0 = __builtin_epi_vfdiv_1xf64( cvd0, alphadd, gvl ); // abv0 *= alpha00
 #endif
 
-	__builtin_epi_vstore_1xf64( b11 + 13*nr + 0*cs_c+0*vlen, cvd0, gvl ); // Store row 14 of b11
+	__builtin_epi_vstore_1xf64( b11 + 13*nr + 0*cs_c+0*vlen, cvd0, gvl ); // Store row 13 of b11
+
+	//
+	// Iteration 3  --------------------------------------------
+	//
+	__epi_1xf64 alphacf = BROADCAST_f64( *(a11 + 12 + 15 * 16), gvl ); // (alphacf)
+	__epi_1xf64 alphace = BROADCAST_f64( *(a11 + 12 + 14 * 16), gvl ); // (alphace)
+	__epi_1xf64 alphacd = BROADCAST_f64( *(a11 + 12 + 13 * 16), gvl ); // (alphacd)
+	__epi_1xf64 alphacc = BROADCAST_f64( *(a11 + 12 + 12 * 16), gvl ); // (1/alphacc)
+
+	accum = __builtin_epi_vfmul_1xf64( cvf0, alphacf, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphace, cve0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphacd, cvd0, gvl );    // 
+
+	cvc0 = __builtin_epi_vfsub_1xf64( cvc0, accum, gvl );    // 
+
+#ifdef BLIS_ENABLE_TRSM_PREINVERSION
+	cvc0 = __builtin_epi_vfmul_1xf64( cvc0, alphacc, gvl ); // abv0 *= alpha00
+#else
+	cvc0 = __builtin_epi_vfdiv_1xf64( cvc0, alphacc, gvl ); // abv0 *= alpha00
+#endif
+
+	__builtin_epi_vstore_1xf64( b11 + 12*nr + 0*cs_c+0*vlen, cvc0, gvl ); // Store row 4 of b11
+
+
+	//
+	// Iteration 4  --------------------------------------------
+	//
+	__epi_1xf64 alphabf = BROADCAST_f64( *(a11 + 11 + 15 * 16), gvl ); // (alphabf)
+	__epi_1xf64 alphabe = BROADCAST_f64( *(a11 + 11 + 14 * 16), gvl ); // (alphabe)
+	__epi_1xf64 alphabd = BROADCAST_f64( *(a11 + 11 + 13 * 16), gvl ); // (alphabd)
+	__epi_1xf64 alphabc = BROADCAST_f64( *(a11 + 11 + 12 * 16), gvl ); // (alphabc)
+	__epi_1xf64 alphabb = BROADCAST_f64( *(a11 + 11 + 11 * 16), gvl ); // (1/alphabb)
+
+	accum = __builtin_epi_vfmul_1xf64( cvf0, alphabf, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphabe, cve0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphabd, cvd0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphabc, cvc0, gvl );    // 
+
+	cvb0 = __builtin_epi_vfsub_1xf64( cvb0, accum, gvl );    // 
+
+#ifdef BLIS_ENABLE_TRSM_PREINVERSION
+	cvb0 = __builtin_epi_vfmul_1xf64( cvb0, alphabb, gvl ); // abv0 *= alpha00
+#else
+	cvb0 = __builtin_epi_vfdiv_1xf64( cvb0, alphabb, gvl ); // abv0 *= alpha00
+#endif
+
+	__builtin_epi_vstore_1xf64( b11 + 11*nr + 0*cs_c+0*vlen, cvb0, gvl ); // Store row 5 of b11
+
+
+	//
+	// Iteration 5  --------------------------------------------
+	//
+	__epi_1xf64 alphaaf = BROADCAST_f64( *(a11 + 10 + 15 * 16), gvl ); // (alphaaf)
+	__epi_1xf64 alphaae = BROADCAST_f64( *(a11 + 10 + 14 * 16), gvl ); // (alphaae)
+	__epi_1xf64 alphaad = BROADCAST_f64( *(a11 + 10 + 13 * 16), gvl ); // (alphaad)
+	__epi_1xf64 alphaac = BROADCAST_f64( *(a11 + 10 + 12 * 16), gvl ); // (alphaac)
+	__epi_1xf64 alphaab = BROADCAST_f64( *(a11 + 10 + 11 * 16), gvl ); // (alphaab)
+	__epi_1xf64 alphaaa = BROADCAST_f64( *(a11 + 10 + 10 * 16), gvl ); // (1/alphaaa)
+
+	accum = __builtin_epi_vfmul_1xf64( cvf0, alphaaf, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaae, cve0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaad, cvd0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaac, cvc0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaab, cvb0, gvl );    // 
+
+	cva0 = __builtin_epi_vfsub_1xf64( cva0, accum, gvl );    // 
+
+#ifdef BLIS_ENABLE_TRSM_PREINVERSION
+	cva0 = __builtin_epi_vfmul_1xf64( cva0, alphaaa, gvl ); // abv0 *= alpha00
+#else
+	cva0 = __builtin_epi_vfdiv_1xf64( cva0, alphaaa, gvl ); // abv0 *= alpha00
+#endif
+
+	__builtin_epi_vstore_1xf64( b11 + 10*nr + 0*cs_c+0*vlen, cva0, gvl ); // Store row 6 of b11
+
+
+	//
+	// Iteration 6  --------------------------------------------
+	//
+	__epi_1xf64 alpha9f = BROADCAST_f64( *(a11 + 9 + 15 * 16), gvl ); // (alpha9f)
+	__epi_1xf64 alpha9e = BROADCAST_f64( *(a11 + 9 + 14 * 16), gvl ); // (alpha9e)
+	__epi_1xf64 alpha9d = BROADCAST_f64( *(a11 + 9 + 13 * 16), gvl ); // (alpha9d)
+	__epi_1xf64 alpha9c = BROADCAST_f64( *(a11 + 9 + 12 * 16), gvl ); // (alpha9c)
+	__epi_1xf64 alpha9b = BROADCAST_f64( *(a11 + 9 + 11 * 16), gvl ); // (alpha9b)
+	__epi_1xf64 alpha9a = BROADCAST_f64( *(a11 + 9 + 10 * 16), gvl ); // (alpha9a)
+	__epi_1xf64 alpha99 = BROADCAST_f64( *(a11 + 9 + 9 * 16), gvl ); // (1/alpha99)
+
+	accum = __builtin_epi_vfmul_1xf64( cvf0, alpha9f, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha9e, cve0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha9d, cvd0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha9c, cvc0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha9b, cvb0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha9a, cva0, gvl );    // 
+
+	cv90 = __builtin_epi_vfsub_1xf64( cv90, accum, gvl );    // 
+
+#ifdef BLIS_ENABLE_TRSM_PREINVERSION
+	cv90 = __builtin_epi_vfmul_1xf64( cv90, alpha99, gvl ); // abv0 *= alpha00
+#else
+	cv90 = __builtin_epi_vfdiv_1xf64( cv90, alpha99, gvl ); // abv0 *= alpha00
+#endif
+
+	__builtin_epi_vstore_1xf64( b11 + 9*nr + 0*cs_c+0*vlen, cv90, gvl ); // Store row 7 of b11
+
+
+
+	//
+	// Iteration 7  --------------------------------------------
+	//
+	__epi_1xf64 alpha8f = BROADCAST_f64( *(a11 + 8 + 15 * 16), gvl ); // (alpha8f)
+	__epi_1xf64 alpha8e = BROADCAST_f64( *(a11 + 8 + 14 * 16), gvl ); // (alpha8e)
+	__epi_1xf64 alpha8d = BROADCAST_f64( *(a11 + 8 + 13 * 16), gvl ); // (alpha8d)
+	__epi_1xf64 alpha8c = BROADCAST_f64( *(a11 + 8 + 12 * 16), gvl ); // (alpha8c)
+	__epi_1xf64 alpha8b = BROADCAST_f64( *(a11 + 8 + 11 * 16), gvl ); // (alpha8b)
+	__epi_1xf64 alpha8a = BROADCAST_f64( *(a11 + 8 + 10 * 16), gvl ); // (alpha8a)
+	__epi_1xf64 alpha89 = BROADCAST_f64( *(a11 + 8 + 9 * 16), gvl ); // (alpha89)
+	__epi_1xf64 alpha88 = BROADCAST_f64( *(a11 + 8 + 8 * 16), gvl ); // (1/alpha88)
+
+	accum = __builtin_epi_vfmul_1xf64( cvf0, alpha8f, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha8e, cve0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha8d, cvd0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha8c, cvc0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha8b, cvb0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha8a, cva0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha89, cv90, gvl );    // 
+
+	cv80 = __builtin_epi_vfsub_1xf64( cv80, accum, gvl );    // 
+
+#ifdef BLIS_ENABLE_TRSM_PREINVERSION
+	cv80 = __builtin_epi_vfmul_1xf64( cv80, alpha88, gvl ); // abv0 *= alpha00
+#else
+	cv80 = __builtin_epi_vfdiv_1xf64( cv80, alpha88, gvl ); // abv0 *= alpha00
+#endif
+
+	__builtin_epi_vstore_1xf64( b11 + 8*nr + 0*cs_c+0*vlen, cv80, gvl ); // Store row 8 of b11
+
+
+	//
+	// Iteration 8  --------------------------------------------
+	//
+	__epi_1xf64 alpha7f = BROADCAST_f64( *(a11 + 7 + 15 * 16), gvl ); // (alpha7f)
+	__epi_1xf64 alpha7e = BROADCAST_f64( *(a11 + 7 + 14 * 16), gvl ); // (alpha7e)
+	__epi_1xf64 alpha7d = BROADCAST_f64( *(a11 + 7 + 13 * 16), gvl ); // (alpha7d)
+	__epi_1xf64 alpha7c = BROADCAST_f64( *(a11 + 7 + 12 * 16), gvl ); // (alpha7c)
+	__epi_1xf64 alpha7b = BROADCAST_f64( *(a11 + 7 + 11 * 16), gvl ); // (alpha7b)
+	__epi_1xf64 alpha7a = BROADCAST_f64( *(a11 + 7 + 10 * 16), gvl ); // (alpha7a)
+	__epi_1xf64 alpha79 = BROADCAST_f64( *(a11 + 7 + 9 * 16), gvl ); // (alpha79)
+	__epi_1xf64 alpha78 = BROADCAST_f64( *(a11 + 7 + 8 * 16), gvl ); // (alpha78)
+	__epi_1xf64 alpha77 = BROADCAST_f64( *(a11 + 7 + 7 * 16), gvl ); // (1/alpha77)
+
+	accum = __builtin_epi_vfmul_1xf64( cvf0, alpha7f, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha7e, cve0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha7d, cvd0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha7c, cvc0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha7b, cvb0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha7a, cva0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha79, cv90, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha78, cv80, gvl );    // 
+
+	cv70 = __builtin_epi_vfsub_1xf64( cv70, accum, gvl );    // 
+
+#ifdef BLIS_ENABLE_TRSM_PREINVERSION
+	cv70 = __builtin_epi_vfmul_1xf64( cv70, alpha77, gvl ); // abv0 *= alpha00
+#else
+	cv70 = __builtin_epi_vfdiv_1xf64( cv70, alpha77, gvl ); // abv0 *= alpha00
+#endif
+
+	__builtin_epi_vstore_1xf64( b11 + 7*nr + 0*cs_c+0*vlen, cv70, gvl ); // Store row 9 of b11
+
+
+	//
+	// Iteration 9  --------------------------------------------
+	//
+	__epi_1xf64 alpha6f = BROADCAST_f64( *(a11 + 6 + 15 * 16), gvl ); // (alpha6f)
+	__epi_1xf64 alpha6e = BROADCAST_f64( *(a11 + 6 + 14 * 16), gvl ); // (alpha6e)
+	__epi_1xf64 alpha6d = BROADCAST_f64( *(a11 + 6 + 13 * 16), gvl ); // (alpha6d)
+	__epi_1xf64 alpha6c = BROADCAST_f64( *(a11 + 6 + 12 * 16), gvl ); // (alpha6c)
+	__epi_1xf64 alpha6b = BROADCAST_f64( *(a11 + 6 + 11 * 16), gvl ); // (alpha6b)
+	__epi_1xf64 alpha6a = BROADCAST_f64( *(a11 + 6 + 10 * 16), gvl ); // (alpha6a)
+	__epi_1xf64 alpha69 = BROADCAST_f64( *(a11 + 6 + 9 * 16), gvl ); // (alpha69)
+	__epi_1xf64 alpha68 = BROADCAST_f64( *(a11 + 6 + 8 * 16), gvl ); // (alpha68)
+	__epi_1xf64 alpha67 = BROADCAST_f64( *(a11 + 6 + 7 * 16), gvl ); // (alpha67)
+	__epi_1xf64 alpha66 = BROADCAST_f64( *(a11 + 6 + 6 * 16), gvl ); // (1/alpha66)
+
+	accum = __builtin_epi_vfmul_1xf64( cvf0, alpha6f, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha6e, cve0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha6d, cvd0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha6c, cvc0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha6b, cvb0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha6a, cva0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha69, cv90, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha68, cv80, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha67, cv70, gvl );    // 
+
+	cv60 = __builtin_epi_vfsub_1xf64( cv60, accum, gvl );    // 
+
+#ifdef BLIS_ENABLE_TRSM_PREINVERSION
+	cv60 = __builtin_epi_vfmul_1xf64( cv60, alpha66, gvl ); // abv0 *= alpha00
+#else
+	cv60 = __builtin_epi_vfdiv_1xf64( cv60, alpha66, gvl ); // abv0 *= alpha00
+#endif
+
+	__builtin_epi_vstore_1xf64( b11 + 6*nr + 0*cs_c+0*vlen, cv60, gvl ); // Store row 10 of b11
+
+
+	//
+	// Iteration 10 --------------------------------------------
+	//
+	__epi_1xf64 alpha5f = BROADCAST_f64( *(a11 + 5 + 15 * 16), gvl ); // (alpha5f)
+	__epi_1xf64 alpha5e = BROADCAST_f64( *(a11 + 5 + 14 * 16), gvl ); // (alpha5e)
+	__epi_1xf64 alpha5d = BROADCAST_f64( *(a11 + 5 + 13 * 16), gvl ); // (alpha5d)
+	__epi_1xf64 alpha5c = BROADCAST_f64( *(a11 + 5 + 12 * 16), gvl ); // (alpha5c)
+	__epi_1xf64 alpha5b = BROADCAST_f64( *(a11 + 5 + 11 * 16), gvl ); // (alpha5b)
+	__epi_1xf64 alpha5a = BROADCAST_f64( *(a11 + 5 + 10 * 16), gvl ); // (alpha5a)
+	__epi_1xf64 alpha59 = BROADCAST_f64( *(a11 + 5 + 9 * 16), gvl ); // (alpha59)
+	__epi_1xf64 alpha58 = BROADCAST_f64( *(a11 + 5 + 8 * 16), gvl ); // (alpha58)
+	__epi_1xf64 alpha57 = BROADCAST_f64( *(a11 + 5 + 7 * 16), gvl ); // (alpha57)
+	__epi_1xf64 alpha56 = BROADCAST_f64( *(a11 + 5 + 6 * 16), gvl ); // (alpha56)
+	__epi_1xf64 alpha55 = BROADCAST_f64( *(a11 + 5 + 5 * 16), gvl ); // (1/alpha55)
+
+	accum = __builtin_epi_vfmul_1xf64( cvf0, alpha5f, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha5e, cve0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha5d, cvd0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha5c, cvc0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha5b, cvb0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha5a, cva0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha59, cv90, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha58, cv80, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha57, cv70, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha56, cv60, gvl );    // 
+
+	cv50 = __builtin_epi_vfsub_1xf64( cv50, accum, gvl );    // 
+
+#ifdef BLIS_ENABLE_TRSM_PREINVERSION
+	cv50 = __builtin_epi_vfmul_1xf64( cv50, alpha55, gvl ); // abv0 *= alpha00
+#else
+	cv50 = __builtin_epi_vfdiv_1xf64( cv50, alpha55, gvl ); // abv0 *= alpha00
+#endif
+
+	__builtin_epi_vstore_1xf64( b11 + 5*nr + 0*cs_c+0*vlen, cv50, gvl ); // Store row 11 of b11
+
+
+	//
+	// Iteration 11 --------------------------------------------
+	//
+	__epi_1xf64 alpha4f = BROADCAST_f64( *(a11 + 4 + 15 * 16), gvl ); // (alpha4f)
+	__epi_1xf64 alpha4e = BROADCAST_f64( *(a11 + 4 + 14 * 16), gvl ); // (alpha4e)
+	__epi_1xf64 alpha4d = BROADCAST_f64( *(a11 + 4 + 13 * 16), gvl ); // (alpha4d)
+	__epi_1xf64 alpha4c = BROADCAST_f64( *(a11 + 4 + 12 * 16), gvl ); // (alpha4c)
+	__epi_1xf64 alpha4b = BROADCAST_f64( *(a11 + 4 + 11 * 16), gvl ); // (alpha4b)
+	__epi_1xf64 alpha4a = BROADCAST_f64( *(a11 + 4 + 10 * 16), gvl ); // (alpha4a)
+	__epi_1xf64 alpha49 = BROADCAST_f64( *(a11 + 4 + 9 * 16), gvl ); // (alpha49)
+	__epi_1xf64 alpha48 = BROADCAST_f64( *(a11 + 4 + 8 * 16), gvl ); // (alpha48)
+	__epi_1xf64 alpha47 = BROADCAST_f64( *(a11 + 4 + 7 * 16), gvl ); // (alpha47)
+	__epi_1xf64 alpha46 = BROADCAST_f64( *(a11 + 4 + 6 * 16), gvl ); // (alpha46)
+	__epi_1xf64 alpha45 = BROADCAST_f64( *(a11 + 4 + 5 * 16), gvl ); // (alpha45)
+	__epi_1xf64 alpha44 = BROADCAST_f64( *(a11 + 4 + 4 * 16), gvl ); // (1/alpha44)
+
+	accum = __builtin_epi_vfmul_1xf64( cvf0, alpha4f, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha4e, cve0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha4d, cvd0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha4c, cvc0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha4b, cvb0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha4a, cva0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha49, cv90, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha48, cv80, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha47, cv70, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha46, cv60, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha45, cv50, gvl );    // 
+
+	cv40 = __builtin_epi_vfsub_1xf64( cv40, accum, gvl );    // 
+
+#ifdef BLIS_ENABLE_TRSM_PREINVERSION
+	cv40 = __builtin_epi_vfmul_1xf64( cv40, alpha44, gvl ); // abv0 *= alpha00
+#else
+	cv40 = __builtin_epi_vfdiv_1xf64( cv40, alpha44, gvl ); // abv0 *= alpha00
+#endif
+
+	__builtin_epi_vstore_1xf64( b11 + 4*nr + 0*cs_c+0*vlen, cv40, gvl ); // Store row 12 of b11
+
+
+	//
+	// Iteration 12 --------------------------------------------
+	//
+	__epi_1xf64 alpha3f = BROADCAST_f64( *(a11 + 3 + 15 * 16), gvl ); // (alpha3f)
+	__epi_1xf64 alpha3e = BROADCAST_f64( *(a11 + 3 + 14 * 16), gvl ); // (alpha3e)
+	__epi_1xf64 alpha3d = BROADCAST_f64( *(a11 + 3 + 13 * 16), gvl ); // (alpha3d)
+	__epi_1xf64 alpha3c = BROADCAST_f64( *(a11 + 3 + 12 * 16), gvl ); // (alpha3c)
+	__epi_1xf64 alpha3b = BROADCAST_f64( *(a11 + 3 + 11 * 16), gvl ); // (alpha3b)
+	__epi_1xf64 alpha3a = BROADCAST_f64( *(a11 + 3 + 10 * 16), gvl ); // (alpha3a)
+	__epi_1xf64 alpha39 = BROADCAST_f64( *(a11 + 3 + 9 * 16), gvl ); // (alpha39)
+	__epi_1xf64 alpha38 = BROADCAST_f64( *(a11 + 3 + 8 * 16), gvl ); // (alpha38)
+	__epi_1xf64 alpha37 = BROADCAST_f64( *(a11 + 3 + 7 * 16), gvl ); // (alpha37)
+	__epi_1xf64 alpha36 = BROADCAST_f64( *(a11 + 3 + 6 * 16), gvl ); // (alpha36)
+	__epi_1xf64 alpha35 = BROADCAST_f64( *(a11 + 3 + 5 * 16), gvl ); // (alpha35)
+	__epi_1xf64 alpha34 = BROADCAST_f64( *(a11 + 3 + 4 * 16), gvl ); // (alpha34)
+	__epi_1xf64 alpha33 = BROADCAST_f64( *(a11 + 3 + 3 * 16), gvl ); // (1/alpha33)
+
+	accum = __builtin_epi_vfmul_1xf64( cvf0, alpha3f, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha3e, cve0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha3d, cvd0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha3c, cvc0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha3b, cvb0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha3a, cva0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha39, cv90, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha38, cv80, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha37, cv70, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha36, cv60, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha35, cv50, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha34, cv40, gvl );    // 
+
+	cv30 = __builtin_epi_vfsub_1xf64( cv30, accum, gvl );    // 
+
+#ifdef BLIS_ENABLE_TRSM_PREINVERSION
+	cv30 = __builtin_epi_vfmul_1xf64( cv30, alpha33, gvl ); // abv0 *= alpha00
+#else
+	cv30 = __builtin_epi_vfdiv_1xf64( cv30, alpha33, gvl ); // abv0 *= alpha00
+#endif
+
+	__builtin_epi_vstore_1xf64( b11 + 3*nr + 0*cs_c+0*vlen, cv30, gvl ); // Store row 13 of b11
+
+
+	//
+	// Iteration 13 --------------------------------------------
+	//
+	__epi_1xf64 alpha2f = BROADCAST_f64( *(a11 + 2 + 15 * 16), gvl ); // (alpha2f)
+	__epi_1xf64 alpha2e = BROADCAST_f64( *(a11 + 2 + 14 * 16), gvl ); // (alpha2e)
+	__epi_1xf64 alpha2d = BROADCAST_f64( *(a11 + 2 + 13 * 16), gvl ); // (alpha2d)
+	__epi_1xf64 alpha2c = BROADCAST_f64( *(a11 + 2 + 12 * 16), gvl ); // (alpha2c)
+	__epi_1xf64 alpha2b = BROADCAST_f64( *(a11 + 2 + 11 * 16), gvl ); // (alpha2b)
+	__epi_1xf64 alpha2a = BROADCAST_f64( *(a11 + 2 + 10 * 16), gvl ); // (alpha2a)
+	__epi_1xf64 alpha29 = BROADCAST_f64( *(a11 + 2 + 9 * 16), gvl ); // (alpha29)
+	__epi_1xf64 alpha28 = BROADCAST_f64( *(a11 + 2 + 8 * 16), gvl ); // (alpha28)
+	__epi_1xf64 alpha27 = BROADCAST_f64( *(a11 + 2 + 7 * 16), gvl ); // (alpha27)
+	__epi_1xf64 alpha26 = BROADCAST_f64( *(a11 + 2 + 6 * 16), gvl ); // (alpha26)
+	__epi_1xf64 alpha25 = BROADCAST_f64( *(a11 + 2 + 5 * 16), gvl ); // (alpha25)
+	__epi_1xf64 alpha24 = BROADCAST_f64( *(a11 + 2 + 4 * 16), gvl ); // (alpha24)
+	__epi_1xf64 alpha23 = BROADCAST_f64( *(a11 + 2 + 3 * 16), gvl ); // (alpha23)
+	__epi_1xf64 alpha22 = BROADCAST_f64( *(a11 + 2 + 2 * 16), gvl ); // (1/alpha22)
+
+	accum = __builtin_epi_vfmul_1xf64( cvf0, alpha2f, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha2e, cve0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha2d, cvd0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha2c, cvc0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha2b, cvb0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha2a, cva0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha29, cv90, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha28, cv80, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha27, cv70, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha26, cv60, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha25, cv50, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha24, cv40, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha23, cv30, gvl );    // 
+
+	cv20 = __builtin_epi_vfsub_1xf64( cv20, accum, gvl );    // 
+
+#ifdef BLIS_ENABLE_TRSM_PREINVERSION
+	cv20 = __builtin_epi_vfmul_1xf64( cv20, alpha22, gvl ); // abv0 *= alpha00
+#else
+	cv20 = __builtin_epi_vfdiv_1xf64( cv20, alpha22, gvl ); // abv0 *= alpha00
+#endif
+
+	__builtin_epi_vstore_1xf64( b11 + 2*nr + 0*cs_c+0*vlen, cv20, gvl ); // Store row 14 of b11
 
 
 	//
 	// Iteration 14 --------------------------------------------
 	//
-	__epi_1xf64 alphae0 = BROADCAST_f64( *(a11 + 14 + 0 * 16), gvl ); // (alphae0)
-	__epi_1xf64 alphae1 = BROADCAST_f64( *(a11 + 14 + 1 * 16), gvl ); // (alphae1)
-	__epi_1xf64 alphae2 = BROADCAST_f64( *(a11 + 14 + 2 * 16), gvl ); // (alphae2)
-	__epi_1xf64 alphae3 = BROADCAST_f64( *(a11 + 14 + 3 * 16), gvl ); // (alphae3)
-	__epi_1xf64 alphae4 = BROADCAST_f64( *(a11 + 14 + 4 * 16), gvl ); // (alphae4)
-	__epi_1xf64 alphae5 = BROADCAST_f64( *(a11 + 14 + 5 * 16), gvl ); // (alphae5)
-	__epi_1xf64 alphae6 = BROADCAST_f64( *(a11 + 14 + 6 * 16), gvl ); // (alphae6)
-	__epi_1xf64 alphae7 = BROADCAST_f64( *(a11 + 14 + 7 * 16), gvl ); // (alphae7)
-	__epi_1xf64 alphae8 = BROADCAST_f64( *(a11 + 14 + 8 * 16), gvl ); // (alphae8)
-	__epi_1xf64 alphae9 = BROADCAST_f64( *(a11 + 14 + 9 * 16), gvl ); // (alphae9)
-	__epi_1xf64 alphaea = BROADCAST_f64( *(a11 + 14 + 10 * 16), gvl ); // (alphaea)
-	__epi_1xf64 alphaeb = BROADCAST_f64( *(a11 + 14 + 11 * 16), gvl ); // (alphaeb)
-	__epi_1xf64 alphaec = BROADCAST_f64( *(a11 + 14 + 12 * 16), gvl ); // (alphaec)
-	__epi_1xf64 alphaed = BROADCAST_f64( *(a11 + 14 + 13 * 16), gvl ); // (alphaed)
-	__epi_1xf64 alphaee = BROADCAST_f64( *(a11 + 14 + 14 * 16), gvl ); // (1/alphaee)
-	//printf("Alphaee: %le\n", *(a11+14+14*16));
+	__epi_1xf64 alpha1f = BROADCAST_f64( *(a11 + 1 + 15 * 16), gvl ); // (alpha1f)
+	__epi_1xf64 alpha1e = BROADCAST_f64( *(a11 + 1 + 14 * 16), gvl ); // (alpha1e)
+	__epi_1xf64 alpha1d = BROADCAST_f64( *(a11 + 1 + 13 * 16), gvl ); // (alpha1d)
+	__epi_1xf64 alpha1c = BROADCAST_f64( *(a11 + 1 + 12 * 16), gvl ); // (alpha1c)
+	__epi_1xf64 alpha1b = BROADCAST_f64( *(a11 + 1 + 11 * 16), gvl ); // (alpha1b)
+	__epi_1xf64 alpha1a = BROADCAST_f64( *(a11 + 1 + 10 * 16), gvl ); // (alpha1a)
+	__epi_1xf64 alpha19 = BROADCAST_f64( *(a11 + 1 + 9 * 16), gvl ); // (alpha19)
+	__epi_1xf64 alpha18 = BROADCAST_f64( *(a11 + 1 + 8 * 16), gvl ); // (alpha18)
+	__epi_1xf64 alpha17 = BROADCAST_f64( *(a11 + 1 + 7 * 16), gvl ); // (alpha17)
+	__epi_1xf64 alpha16 = BROADCAST_f64( *(a11 + 1 + 6 * 16), gvl ); // (alpha16)
+	__epi_1xf64 alpha15 = BROADCAST_f64( *(a11 + 1 + 5 * 16), gvl ); // (alpha15)
+	__epi_1xf64 alpha14 = BROADCAST_f64( *(a11 + 1 + 4 * 16), gvl ); // (alpha14)
+	__epi_1xf64 alpha13 = BROADCAST_f64( *(a11 + 1 + 3 * 16), gvl ); // (alpha13)
+	__epi_1xf64 alpha12 = BROADCAST_f64( *(a11 + 1 + 2 * 16), gvl ); // (alpha12)
+	__epi_1xf64 alpha11 = BROADCAST_f64( *(a11 + 1 + 1 * 16), gvl ); // (1/alpha11)
 
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alphae0, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphae1, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphae2, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphae3, cv30, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphae4, cv40, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphae5, cv50, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphae6, cv60, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphae7, cv70, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphae8, cv80, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphae9, cv90, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaea, cva0, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaeb, cvb0, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaec, cvc0, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaed, cvd0, gvl );    // 
+	accum = __builtin_epi_vfmul_1xf64( cvf0, alpha1f, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha1e, cve0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha1d, cvd0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha1c, cvc0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha1b, cvb0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha1a, cva0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha19, cv90, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha18, cv80, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha17, cv70, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha16, cv60, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha15, cv50, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha14, cv40, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha13, cv30, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha12, cv20, gvl );    // 
 
-	cve0 = __builtin_epi_vfsub_1xf64( cve0, cv00b, gvl );    // 
+	cv10 = __builtin_epi_vfsub_1xf64( cv10, accum, gvl );    // 
 
 #ifdef BLIS_ENABLE_TRSM_PREINVERSION
-	cve0 = __builtin_epi_vfmul_1xf64( cve0, alphaee, gvl ); // abv0 *= alpha00
+	cv10 = __builtin_epi_vfmul_1xf64( cv10, alpha11, gvl ); // abv0 *= alpha00
 #else
-	cve0 = __builtin_epi_vfdiv_1xf64( cve0, alphaee, gvl ); // abv0 *= alpha00
+	cv10 = __builtin_epi_vfdiv_1xf64( cv10, alpha11, gvl ); // abv0 *= alpha00
 #endif
 
-	__builtin_epi_vstore_1xf64( b11 + 14*nr + 0*cs_c+0*vlen, cve0, gvl ); // Store row 15 of b11
+	__builtin_epi_vstore_1xf64( b11 + 1*nr + 0*cs_c+0*vlen, cv10, gvl ); // Store row 15 of b11
 
 
 	//
 	// Iteration 15 --------------------------------------------
 	//
-	__epi_1xf64 alphaf0 = BROADCAST_f64( *(a11 + 15 + 0 * 16), gvl ); // (alphaf0)
-	__epi_1xf64 alphaf1 = BROADCAST_f64( *(a11 + 15 + 1 * 16), gvl ); // (alphaf1)
-	__epi_1xf64 alphaf2 = BROADCAST_f64( *(a11 + 15 + 2 * 16), gvl ); // (alphaf2)
-	__epi_1xf64 alphaf3 = BROADCAST_f64( *(a11 + 15 + 3 * 16), gvl ); // (alphaf3)
-	__epi_1xf64 alphaf4 = BROADCAST_f64( *(a11 + 15 + 4 * 16), gvl ); // (alphaf4)
-	__epi_1xf64 alphaf5 = BROADCAST_f64( *(a11 + 15 + 5 * 16), gvl ); // (alphaf5)
-	__epi_1xf64 alphaf6 = BROADCAST_f64( *(a11 + 15 + 6 * 16), gvl ); // (alphaf6)
-	__epi_1xf64 alphaf7 = BROADCAST_f64( *(a11 + 15 + 7 * 16), gvl ); // (alphaf7)
-	__epi_1xf64 alphaf8 = BROADCAST_f64( *(a11 + 15 + 8 * 16), gvl ); // (alphaf8)
-	__epi_1xf64 alphaf9 = BROADCAST_f64( *(a11 + 15 + 9 * 16), gvl ); // (alphaf9)
-	__epi_1xf64 alphafa = BROADCAST_f64( *(a11 + 15 + 10 * 16), gvl ); // (alphafa)
-	__epi_1xf64 alphafb = BROADCAST_f64( *(a11 + 15 + 11 * 16), gvl ); // (alphafb)
-	__epi_1xf64 alphafc = BROADCAST_f64( *(a11 + 15 + 12 * 16), gvl ); // (alphafc)
-	__epi_1xf64 alphafd = BROADCAST_f64( *(a11 + 15 + 13 * 16), gvl ); // (alphafd)
-	__epi_1xf64 alphafe = BROADCAST_f64( *(a11 + 15 + 14 * 16), gvl ); // (alphafe)
-	__epi_1xf64 alphaff = BROADCAST_f64( *(a11 + 15 + 15 * 16), gvl ); // (1/alphaff)
-	//printf("Alphaff: %le\n", *(a11+15+15*16));
+	__epi_1xf64 alpha0f = BROADCAST_f64( *(a11 + 0 + 15 * 16), gvl ); // (alpha0f)
+	__epi_1xf64 alpha0e = BROADCAST_f64( *(a11 + 0 + 14 * 16), gvl ); // (alpha0e)
+	__epi_1xf64 alpha0d = BROADCAST_f64( *(a11 + 0 + 13 * 16), gvl ); // (alpha0d)
+	__epi_1xf64 alpha0c = BROADCAST_f64( *(a11 + 0 + 12 * 16), gvl ); // (alpha0c)
+	__epi_1xf64 alpha0b = BROADCAST_f64( *(a11 + 0 + 11 * 16), gvl ); // (alpha0b)
+	__epi_1xf64 alpha0a = BROADCAST_f64( *(a11 + 0 + 10 * 16), gvl ); // (alpha0a)
+	__epi_1xf64 alpha09 = BROADCAST_f64( *(a11 + 0 + 9 * 16), gvl ); // (alpha09)
+	__epi_1xf64 alpha08 = BROADCAST_f64( *(a11 + 0 + 8 * 16), gvl ); // (alpha08)
+	__epi_1xf64 alpha07 = BROADCAST_f64( *(a11 + 0 + 7 * 16), gvl ); // (alpha07)
+	__epi_1xf64 alpha06 = BROADCAST_f64( *(a11 + 0 + 6 * 16), gvl ); // (alpha06)
+	__epi_1xf64 alpha05 = BROADCAST_f64( *(a11 + 0 + 5 * 16), gvl ); // (alpha05)
+	__epi_1xf64 alpha04 = BROADCAST_f64( *(a11 + 0 + 4 * 16), gvl ); // (alpha04)
+	__epi_1xf64 alpha03 = BROADCAST_f64( *(a11 + 0 + 3 * 16), gvl ); // (alpha03)
+	__epi_1xf64 alpha02 = BROADCAST_f64( *(a11 + 0 + 2 * 16), gvl ); // (alpha02)
+	__epi_1xf64 alpha01 = BROADCAST_f64( *(a11 + 0 + 1 * 16), gvl ); // (alpha01)
+	__epi_1xf64 alpha00 = BROADCAST_f64( *(a11 + 0 + 0 * 16), gvl ); // (1/alpha00)
 
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alphaf0, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaf1, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaf2, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaf3, cv30, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaf4, cv40, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaf5, cv50, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaf6, cv60, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaf7, cv70, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaf8, cv80, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaf9, cv90, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphafa, cva0, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphafb, cvb0, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphafc, cvc0, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphafd, cvd0, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphafe, cve0, gvl );    // 
+	accum = __builtin_epi_vfmul_1xf64( cvf0, alpha0f, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha0e, cve0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha0d, cvd0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha0c, cvc0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha0b, cvb0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha0a, cva0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha09, cv90, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha08, cv80, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha07, cv70, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha06, cv60, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha05, cv50, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha04, cv40, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha03, cv30, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha02, cv20, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha01, cv10, gvl );    // 
 
-	cvf0 = __builtin_epi_vfsub_1xf64( cvf0, cv00b, gvl );    // 
+	cv00 = __builtin_epi_vfsub_1xf64( cv00, accum, gvl );    // 
 
 #ifdef BLIS_ENABLE_TRSM_PREINVERSION
-	cvf0 = __builtin_epi_vfmul_1xf64( cvf0, alphaff, gvl ); // abv0 *= alpha00
+	cv00 = __builtin_epi_vfmul_1xf64( cv00, alpha00, gvl ); // abv0 *= alpha00
 #else
-	cvf0 = __builtin_epi_vfdiv_1xf64( cvf0, alphaff, gvl ); // abv0 *= alpha00
+	cv00 = __builtin_epi_vfdiv_1xf64( cv00, alpha00, gvl ); // abv0 *= alpha00
 #endif
 
-	__builtin_epi_vstore_1xf64( b11 + 15*nr + 0*cs_c+0*vlen, cvf0, gvl ); // Store row 16 of b11
+	__builtin_epi_vstore_1xf64( b11 + 0*nr + 0*cs_c+0*vlen, cv00, gvl ); // Store row 16 of b11
 
 
 	// END TRSM

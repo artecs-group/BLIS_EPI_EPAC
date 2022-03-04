@@ -269,9 +269,9 @@
 0        # trsm
 ?        #   parameters: uploa
 
-0        # gemmtrsm
+1        # gemmtrsm
 -1       #   dimensions: k
-l        #   parameters: uploa
+?        #   parameters: uploa
 
 
 # --- Level-3 --------------------------------------------------------------

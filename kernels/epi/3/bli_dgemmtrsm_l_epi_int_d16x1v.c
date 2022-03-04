@@ -324,9 +324,9 @@ void bli_dgemmtrsm_l_epi_scalar_16x1v
 	__epi_1xf64 alpha10 = BROADCAST_f64( *(a11 + 1 + 0 * 16), gvl ); // (alpha10)
 	__epi_1xf64 alpha11 = BROADCAST_f64( *(a11 + 1 + 1 * 16), gvl ); // (1/alpha11)
 
-	__epi_1xf64 cv00b = __builtin_epi_vfmul_1xf64( cv00, alpha10, gvl );  // Scale row 1 of B11
+	__epi_1xf64 accum = __builtin_epi_vfmul_1xf64( cv00, alpha10, gvl );  // Scale row 1 of B11
 
-	cv10  = __builtin_epi_vfsub_1xf64( cv10, cv00b, gvl );    // Update row 2 of B11
+	cv10  = __builtin_epi_vfsub_1xf64( cv10, accum, gvl );    // Update row 2 of B11
 
 #ifdef BLIS_ENABLE_TRSM_PREINVERSION
 	cv10 = __builtin_epi_vfmul_1xf64( cv10, alpha11, gvl ); // abv0 *= alpha00
@@ -344,10 +344,10 @@ void bli_dgemmtrsm_l_epi_scalar_16x1v
 	__epi_1xf64 alpha21 = BROADCAST_f64( *(a11 + 2 + 1 * 16), gvl ); // (alpha21)
 	__epi_1xf64 alpha22 = BROADCAST_f64( *(a11 + 2 + 2 * 16), gvl ); // (1/alpha22)
 
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alpha20, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha21, cv10, gvl );    // 
+	accum = __builtin_epi_vfmul_1xf64( cv00, alpha20, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha21, cv10, gvl );    // 
 
-	cv20 = __builtin_epi_vfsub_1xf64( cv20, cv00b, gvl );    // 
+	cv20 = __builtin_epi_vfsub_1xf64( cv20, accum, gvl );    // 
 
 #ifdef BLIS_ENABLE_TRSM_PREINVERSION
 	cv20 = __builtin_epi_vfmul_1xf64( cv20, alpha22, gvl ); // abv0 *= alpha00
@@ -365,11 +365,11 @@ void bli_dgemmtrsm_l_epi_scalar_16x1v
 	__epi_1xf64 alpha32 = BROADCAST_f64( *(a11 + 3 + 2 * 16), gvl ); // (alpha32)
 	__epi_1xf64 alpha33 = BROADCAST_f64( *(a11 + 3 + 3 * 16), gvl ); // (1/alpha33)
 
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alpha30, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha31, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha32, cv20, gvl );    // 
+	accum = __builtin_epi_vfmul_1xf64( cv00, alpha30, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha31, cv10, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha32, cv20, gvl );    // 
 
-	cv30 = __builtin_epi_vfsub_1xf64( cv30, cv00b, gvl );    // 
+	cv30 = __builtin_epi_vfsub_1xf64( cv30, accum, gvl );    // 
 
 #ifdef BLIS_ENABLE_TRSM_PREINVERSION
 	cv30 = __builtin_epi_vfmul_1xf64( cv30, alpha33, gvl ); // abv0 *= alpha00
@@ -389,12 +389,12 @@ void bli_dgemmtrsm_l_epi_scalar_16x1v
 	__epi_1xf64 alpha43 = BROADCAST_f64( *(a11 + 4 + 3 * 16), gvl ); // (alpha43)
 	__epi_1xf64 alpha44 = BROADCAST_f64( *(a11 + 4 + 4 * 16), gvl ); // (1/alpha44)
 
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alpha40, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha41, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha42, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha43, cv30, gvl );    // 
+	accum = __builtin_epi_vfmul_1xf64( cv00, alpha40, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha41, cv10, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha42, cv20, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha43, cv30, gvl );    // 
 
-	cv40 = __builtin_epi_vfsub_1xf64( cv40, cv00b, gvl );    // 
+	cv40 = __builtin_epi_vfsub_1xf64( cv40, accum, gvl );    // 
 
 #ifdef BLIS_ENABLE_TRSM_PREINVERSION
 	cv40 = __builtin_epi_vfmul_1xf64( cv40, alpha44, gvl ); // abv0 *= alpha00
@@ -415,13 +415,13 @@ void bli_dgemmtrsm_l_epi_scalar_16x1v
 	__epi_1xf64 alpha54 = BROADCAST_f64( *(a11 + 5 + 4 * 16), gvl ); // (alpha54)
 	__epi_1xf64 alpha55 = BROADCAST_f64( *(a11 + 5 + 5 * 16), gvl ); // (1/alpha55)
 
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alpha50, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha51, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha52, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha53, cv30, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha54, cv40, gvl );    // 
+	accum = __builtin_epi_vfmul_1xf64( cv00, alpha50, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha51, cv10, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha52, cv20, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha53, cv30, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha54, cv40, gvl );    // 
 
-	cv50 = __builtin_epi_vfsub_1xf64( cv50, cv00b, gvl );    // 
+	cv50 = __builtin_epi_vfsub_1xf64( cv50, accum, gvl );    // 
 
 #ifdef BLIS_ENABLE_TRSM_PREINVERSION
 	cv50 = __builtin_epi_vfmul_1xf64( cv50, alpha55, gvl ); // abv0 *= alpha00
@@ -443,14 +443,14 @@ void bli_dgemmtrsm_l_epi_scalar_16x1v
 	__epi_1xf64 alpha65 = BROADCAST_f64( *(a11 + 6 + 5 * 16), gvl ); // (alpha65)
 	__epi_1xf64 alpha66 = BROADCAST_f64( *(a11 + 6 + 6 * 16), gvl ); // (1/alpha66)
 
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alpha60, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha61, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha62, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha63, cv30, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha64, cv40, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha65, cv50, gvl );    // 
+	accum = __builtin_epi_vfmul_1xf64( cv00, alpha60, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha61, cv10, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha62, cv20, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha63, cv30, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha64, cv40, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha65, cv50, gvl );    // 
 
-	cv60 = __builtin_epi_vfsub_1xf64( cv60, cv00b, gvl );    // 
+	cv60 = __builtin_epi_vfsub_1xf64( cv60, accum, gvl );    // 
 
 #ifdef BLIS_ENABLE_TRSM_PREINVERSION
 	cv60 = __builtin_epi_vfmul_1xf64( cv60, alpha66, gvl ); // abv0 *= alpha00
@@ -474,15 +474,15 @@ void bli_dgemmtrsm_l_epi_scalar_16x1v
 	__epi_1xf64 alpha76 = BROADCAST_f64( *(a11 + 7 + 6 * 16), gvl ); // (alpha76)
 	__epi_1xf64 alpha77 = BROADCAST_f64( *(a11 + 7 + 7 * 16), gvl ); // (1/alpha77)
 
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alpha70, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha71, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha72, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha73, cv30, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha74, cv40, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha75, cv50, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha76, cv60, gvl );    // 
+	accum = __builtin_epi_vfmul_1xf64( cv00, alpha70, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha71, cv10, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha72, cv20, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha73, cv30, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha74, cv40, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha75, cv50, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha76, cv60, gvl );    // 
 
-	cv70 = __builtin_epi_vfsub_1xf64( cv70, cv00b, gvl );    // 
+	cv70 = __builtin_epi_vfsub_1xf64( cv70, accum, gvl );    // 
 
 #ifdef BLIS_ENABLE_TRSM_PREINVERSION
 	cv70 = __builtin_epi_vfmul_1xf64( cv70, alpha77, gvl ); // abv0 *= alpha00
@@ -506,16 +506,16 @@ void bli_dgemmtrsm_l_epi_scalar_16x1v
 	__epi_1xf64 alpha87 = BROADCAST_f64( *(a11 + 8 + 7 * 16), gvl ); // (alpha87)
 	__epi_1xf64 alpha88 = BROADCAST_f64( *(a11 + 8 + 8 * 16), gvl ); // (1/alpha88)
 
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alpha80, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha81, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha82, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha83, cv30, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha84, cv40, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha85, cv50, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha86, cv60, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha87, cv70, gvl );    // 
+	accum = __builtin_epi_vfmul_1xf64( cv00, alpha80, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha81, cv10, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha82, cv20, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha83, cv30, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha84, cv40, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha85, cv50, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha86, cv60, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha87, cv70, gvl );    // 
 
-	cv80 = __builtin_epi_vfsub_1xf64( cv80, cv00b, gvl );    // 
+	cv80 = __builtin_epi_vfsub_1xf64( cv80, accum, gvl );    // 
 
 #ifdef BLIS_ENABLE_TRSM_PREINVERSION
 	cv80 = __builtin_epi_vfmul_1xf64( cv80, alpha88, gvl ); // abv0 *= alpha00
@@ -540,17 +540,17 @@ void bli_dgemmtrsm_l_epi_scalar_16x1v
 	__epi_1xf64 alpha98 = BROADCAST_f64( *(a11 + 9 + 8 * 16), gvl ); // (alpha98)
 	__epi_1xf64 alpha99 = BROADCAST_f64( *(a11 + 9 + 9 * 16), gvl ); // (1/alpha99)
 
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alpha90, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha91, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha92, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha93, cv30, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha94, cv40, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha95, cv50, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha96, cv60, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha97, cv70, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alpha98, cv80, gvl );    // 
+	accum = __builtin_epi_vfmul_1xf64( cv00, alpha90, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha91, cv10, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha92, cv20, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha93, cv30, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha94, cv40, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha95, cv50, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha96, cv60, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha97, cv70, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alpha98, cv80, gvl );    // 
 
-	cv90 = __builtin_epi_vfsub_1xf64( cv90, cv00b, gvl );    // 
+	cv90 = __builtin_epi_vfsub_1xf64( cv90, accum, gvl );    // 
 
 #ifdef BLIS_ENABLE_TRSM_PREINVERSION
 	cv90 = __builtin_epi_vfmul_1xf64( cv90, alpha99, gvl ); // abv0 *= alpha00
@@ -576,18 +576,18 @@ void bli_dgemmtrsm_l_epi_scalar_16x1v
 	__epi_1xf64 alphaa9 = BROADCAST_f64( *(a11 + 10 + 9 * 16), gvl ); // (alphaa9)
 	__epi_1xf64 alphaaa = BROADCAST_f64( *(a11 + 10 + 10 * 16), gvl ); // (1/alphaaa)
 
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alphaa0, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaa1, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaa2, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaa3, cv30, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaa4, cv40, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaa5, cv50, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaa6, cv60, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaa7, cv70, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaa8, cv80, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaa9, cv90, gvl );    // 
+	accum = __builtin_epi_vfmul_1xf64( cv00, alphaa0, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaa1, cv10, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaa2, cv20, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaa3, cv30, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaa4, cv40, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaa5, cv50, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaa6, cv60, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaa7, cv70, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaa8, cv80, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaa9, cv90, gvl );    // 
 
-	cva0 = __builtin_epi_vfsub_1xf64( cva0, cv00b, gvl );    // 
+	cva0 = __builtin_epi_vfsub_1xf64( cva0, accum, gvl );    // 
 
 #ifdef BLIS_ENABLE_TRSM_PREINVERSION
 	cva0 = __builtin_epi_vfmul_1xf64( cva0, alphaaa, gvl ); // abv0 *= alpha00
@@ -614,19 +614,19 @@ void bli_dgemmtrsm_l_epi_scalar_16x1v
 	__epi_1xf64 alphaba = BROADCAST_f64( *(a11 + 11 + 10 * 16), gvl ); // (alphaba)
 	__epi_1xf64 alphabb = BROADCAST_f64( *(a11 + 11 + 11 * 16), gvl ); // (1/alphabb)
 
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alphab0, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphab1, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphab2, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphab3, cv30, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphab4, cv40, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphab5, cv50, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphab6, cv60, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphab7, cv70, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphab8, cv80, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphab9, cv90, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaba, cva0, gvl );    // 
+	accum = __builtin_epi_vfmul_1xf64( cv00, alphab0, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphab1, cv10, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphab2, cv20, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphab3, cv30, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphab4, cv40, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphab5, cv50, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphab6, cv60, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphab7, cv70, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphab8, cv80, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphab9, cv90, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaba, cva0, gvl );    // 
 
-	cvb0 = __builtin_epi_vfsub_1xf64( cvb0, cv00b, gvl );    // 
+	cvb0 = __builtin_epi_vfsub_1xf64( cvb0, accum, gvl );    // 
 
 #ifdef BLIS_ENABLE_TRSM_PREINVERSION
 	cvb0 = __builtin_epi_vfmul_1xf64( cvb0, alphabb, gvl ); // abv0 *= alpha00
@@ -654,20 +654,20 @@ void bli_dgemmtrsm_l_epi_scalar_16x1v
 	__epi_1xf64 alphacb = BROADCAST_f64( *(a11 + 12 + 11 * 16), gvl ); // (alphacb)
 	__epi_1xf64 alphacc = BROADCAST_f64( *(a11 + 12 + 12 * 16), gvl ); // (1/alphacc)
 
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alphac0, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphac1, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphac2, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphac3, cv30, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphac4, cv40, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphac5, cv50, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphac6, cv60, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphac7, cv70, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphac8, cv80, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphac9, cv90, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaca, cva0, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphacb, cvb0, gvl );    // 
+	accum = __builtin_epi_vfmul_1xf64( cv00, alphac0, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphac1, cv10, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphac2, cv20, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphac3, cv30, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphac4, cv40, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphac5, cv50, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphac6, cv60, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphac7, cv70, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphac8, cv80, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphac9, cv90, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaca, cva0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphacb, cvb0, gvl );    // 
 
-	cvc0 = __builtin_epi_vfsub_1xf64( cvc0, cv00b, gvl );    // 
+	cvc0 = __builtin_epi_vfsub_1xf64( cvc0, accum, gvl );    // 
 
 #ifdef BLIS_ENABLE_TRSM_PREINVERSION
 	cvc0 = __builtin_epi_vfmul_1xf64( cvc0, alphacc, gvl ); // abv0 *= alpha00
@@ -696,21 +696,21 @@ void bli_dgemmtrsm_l_epi_scalar_16x1v
 	__epi_1xf64 alphadc = BROADCAST_f64( *(a11 + 13 + 12 * 16), gvl ); // (alphadc)
 	__epi_1xf64 alphadd = BROADCAST_f64( *(a11 + 13 + 13 * 16), gvl ); // (1/alphadd)
 
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alphad0, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphad1, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphad2, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphad3, cv30, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphad4, cv40, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphad5, cv50, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphad6, cv60, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphad7, cv70, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphad8, cv80, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphad9, cv90, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphada, cva0, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphadb, cvb0, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphadc, cvc0, gvl );    // 
+	accum = __builtin_epi_vfmul_1xf64( cv00, alphad0, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphad1, cv10, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphad2, cv20, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphad3, cv30, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphad4, cv40, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphad5, cv50, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphad6, cv60, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphad7, cv70, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphad8, cv80, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphad9, cv90, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphada, cva0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphadb, cvb0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphadc, cvc0, gvl );    // 
 
-	cvd0 = __builtin_epi_vfsub_1xf64( cvd0, cv00b, gvl );    // 
+	cvd0 = __builtin_epi_vfsub_1xf64( cvd0, accum, gvl );    // 
 
 #ifdef BLIS_ENABLE_TRSM_PREINVERSION
 	cvd0 = __builtin_epi_vfmul_1xf64( cvd0, alphadd, gvl ); // abv0 *= alpha00
@@ -740,22 +740,22 @@ void bli_dgemmtrsm_l_epi_scalar_16x1v
 	__epi_1xf64 alphaed = BROADCAST_f64( *(a11 + 14 + 13 * 16), gvl ); // (alphaed)
 	__epi_1xf64 alphaee = BROADCAST_f64( *(a11 + 14 + 14 * 16), gvl ); // (1/alphaee)
 
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alphae0, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphae1, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphae2, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphae3, cv30, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphae4, cv40, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphae5, cv50, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphae6, cv60, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphae7, cv70, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphae8, cv80, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphae9, cv90, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaea, cva0, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaeb, cvb0, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaec, cvc0, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaed, cvd0, gvl );    // 
+	accum = __builtin_epi_vfmul_1xf64( cv00, alphae0, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphae1, cv10, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphae2, cv20, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphae3, cv30, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphae4, cv40, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphae5, cv50, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphae6, cv60, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphae7, cv70, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphae8, cv80, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphae9, cv90, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaea, cva0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaeb, cvb0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaec, cvc0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaed, cvd0, gvl );    // 
 
-	cve0 = __builtin_epi_vfsub_1xf64( cve0, cv00b, gvl );    // 
+	cve0 = __builtin_epi_vfsub_1xf64( cve0, accum, gvl );    // 
 
 #ifdef BLIS_ENABLE_TRSM_PREINVERSION
 	cve0 = __builtin_epi_vfmul_1xf64( cve0, alphaee, gvl ); // abv0 *= alpha00
@@ -786,23 +786,23 @@ void bli_dgemmtrsm_l_epi_scalar_16x1v
 	__epi_1xf64 alphafe = BROADCAST_f64( *(a11 + 15 + 14 * 16), gvl ); // (alphafe)
 	__epi_1xf64 alphaff = BROADCAST_f64( *(a11 + 15 + 15 * 16), gvl ); // (1/alphaff)
 
-	cv00b = __builtin_epi_vfmul_1xf64( cv00, alphaf0, gvl );            // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaf1, cv10, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaf2, cv20, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaf3, cv30, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaf4, cv40, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaf5, cv50, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaf6, cv60, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaf7, cv70, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaf8, cv80, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphaf9, cv90, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphafa, cva0, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphafb, cvb0, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphafc, cvc0, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphafd, cvd0, gvl );    // 
-	cv00b = __builtin_epi_vfmacc_1xf64( cv00b, alphafe, cve0, gvl );    // 
+	accum = __builtin_epi_vfmul_1xf64( cv00, alphaf0, gvl );            // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaf1, cv10, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaf2, cv20, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaf3, cv30, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaf4, cv40, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaf5, cv50, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaf6, cv60, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaf7, cv70, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaf8, cv80, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphaf9, cv90, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphafa, cva0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphafb, cvb0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphafc, cvc0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphafd, cvd0, gvl );    // 
+	accum = __builtin_epi_vfmacc_1xf64( accum, alphafe, cve0, gvl );    // 
 
-	cvf0 = __builtin_epi_vfsub_1xf64( cvf0, cv00b, gvl );    // 
+	cvf0 = __builtin_epi_vfsub_1xf64( cvf0, accum, gvl );    // 
 
 #ifdef BLIS_ENABLE_TRSM_PREINVERSION
 	cvf0 = __builtin_epi_vfmul_1xf64( cvf0, alphaff, gvl ); // abv0 *= alpha00

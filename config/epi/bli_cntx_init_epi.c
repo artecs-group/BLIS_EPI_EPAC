@@ -47,10 +47,11 @@ void bli_cntx_init_epi( cntx_t* cntx )
 	// their storage preferences.
 	bli_cntx_set_l3_nat_ukrs
 	(
-	  2,
+	  3,
 	  //BLIS_GEMM_UKR, BLIS_FLOAT,          bli_sgemm_epi_scalar_24x8, TRUE,
 	  BLIS_GEMM_UKR, BLIS_DOUBLE,         bli_dgemm_epi_scalar_16x1v, TRUE,
 	  BLIS_GEMMTRSM_L_UKR, BLIS_DOUBLE,   bli_dgemmtrsm_l_epi_scalar_16x1v,  TRUE,
+	  BLIS_GEMMTRSM_U_UKR, BLIS_DOUBLE,   bli_dgemmtrsm_u_epi_scalar_16x1v,  TRUE,
 	  cntx
 	);
 
