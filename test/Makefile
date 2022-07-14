@@ -143,7 +143,7 @@ CFLAGS         += -I$(TEST_SRC_PATH)
 #
 
 # Define the operations we will test.
-TEST_OPS := dotv axpyv axpbyv\
+TEST_OPS := dotv axpyv axpbyv swapv \
             gemv ger hemv her her2 trmv trsv \
             gemm gemm_batch hemm herk her2k trmm trsm
 

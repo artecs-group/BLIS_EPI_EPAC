@@ -55,6 +55,21 @@ void bli_cntx_init_epi( cntx_t* cntx )
 	  cntx
 	);
 
+	bli_cntx_set_l1v_kers
+		(
+		 10,
+	  BLIS_AXPYV_KER,  BLIS_FLOAT,  bli_saxpyv_epi_int,
+	  BLIS_AXPYV_KER,  BLIS_DOUBLE, bli_daxpyv_epi_int,
+ 	  BLIS_SCALV_KER,  BLIS_FLOAT,  bli_sscalv_epi_int,
+	  BLIS_SCALV_KER,  BLIS_DOUBLE, bli_dscalv_epi_int,
+ 	  BLIS_SWAPV_KER,  BLIS_FLOAT,  bli_sswapv_epi_int,
+	  BLIS_SWAPV_KER,  BLIS_DOUBLE, bli_dswapv_epi_int,
+	  BLIS_COPYV_KER,  BLIS_FLOAT,  bli_scopyv_epi_int,
+	  BLIS_COPYV_KER,  BLIS_DOUBLE, bli_dcopyv_epi_int,
+          BLIS_SETV_KER,   BLIS_FLOAT,  bli_ssetv_epi_int,
+          BLIS_SETV_KER,   BLIS_DOUBLE, bli_dsetv_epi_int,
+		 cntx
+		);
   unsigned long int vector_length_sp;
   unsigned long int vector_length_dp;
 

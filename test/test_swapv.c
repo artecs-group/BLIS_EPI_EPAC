@@ -76,8 +76,8 @@ int main( int argc, char** argv )
 #endif
 
 #if 1
-    dt = BLIS_FLOAT;
-    //dt = BLIS_DOUBLE;
+    //dt = BLIS_FLOAT;
+    dt = BLIS_DOUBLE;
 #else
     //dt = BLIS_SCOMPLEX;
     dt = BLIS_DCOMPLEX;

@@ -36,3 +36,21 @@ GEMM_UKR_PROT( float,   s, gemm_epi_scalar_24x8 )
 GEMM_UKR_PROT( double,   d, gemm_epi_scalar_16x1v )
 GEMMTRSM_UKR_PROT( double,   d, gemmtrsm_l_epi_scalar_16x1v )
 GEMMTRSM_UKR_PROT( double,   d, gemmtrsm_u_epi_scalar_16x1v )
+
+AXPYV_KER_PROT( float,    s, axpyv_epi_int )
+AXPYV_KER_PROT( double,   d, axpyv_epi_int )
+
+SCALV_KER_PROT( float,    s, scalv_epi_int )
+SCALV_KER_PROT( double,   d, scalv_epi_int )
+
+SWAPV_KER_PROT(float,    s, swapv_epi_int )
+SWAPV_KER_PROT(double,   d, swapv_epi_int )
+
+COPYV_KER_PROT( float,    s, copyv_epi_int )
+COPYV_KER_PROT( double,   d, copyv_epi_int )
+
+SETV_KER_PROT(float,    s, setv_epi_int)
+SETV_KER_PROT(double,   d, setv_epi_int)
+
+
+
