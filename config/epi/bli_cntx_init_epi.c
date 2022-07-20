@@ -57,9 +57,11 @@ void bli_cntx_init_epi( cntx_t* cntx )
 
 	bli_cntx_set_l1v_kers
 		(
-		 10,
+		 12,
 	  BLIS_AXPYV_KER,  BLIS_FLOAT,  bli_saxpyv_epi_int,
 	  BLIS_AXPYV_KER,  BLIS_DOUBLE, bli_daxpyv_epi_int,
+	  BLIS_AMAXV_KER,  BLIS_FLOAT,  bli_samaxv_epi_int,
+	  BLIS_AMAXV_KER,  BLIS_DOUBLE, bli_damaxv_epi_int,
  	  BLIS_SCALV_KER,  BLIS_FLOAT,  bli_sscalv_epi_int,
 	  BLIS_SCALV_KER,  BLIS_DOUBLE, bli_dscalv_epi_int,
  	  BLIS_SWAPV_KER,  BLIS_FLOAT,  bli_sswapv_epi_int,

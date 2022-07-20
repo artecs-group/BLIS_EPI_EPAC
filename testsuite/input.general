@@ -22,7 +22,7 @@ cj      # Vector storage scheme(s) to test:
         #   '0' = real values on [-1,1];
         #   '1' = powers of 2 in narrow precision range
 32      # General stride spacing (for cases when testing general stride)
-d    # Datatype(s) to test:
+sd    # Datatype(s) to test:
         #   's' = single real; 'c' = single complex;
         #   'd' = double real; 'z' = double complex
 0       # Test gemm with mixed-domain operands?

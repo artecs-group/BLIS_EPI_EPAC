@@ -40,6 +40,9 @@ GEMMTRSM_UKR_PROT( double,   d, gemmtrsm_u_epi_scalar_16x1v )
 AXPYV_KER_PROT( float,    s, axpyv_epi_int )
 AXPYV_KER_PROT( double,   d, axpyv_epi_int )
 
+AMAXV_KER_PROT( float,    s, amaxv_epi_int )
+AMAXV_KER_PROT( double,   d, amaxv_epi_int )
+
 SCALV_KER_PROT( float,    s, scalv_epi_int )
 SCALV_KER_PROT( double,   d, scalv_epi_int )
 
