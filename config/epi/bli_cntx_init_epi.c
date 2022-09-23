@@ -55,6 +55,7 @@ void bli_cntx_init_epi( cntx_t* cntx )
 	  cntx
 	);
 
+#if 0
 	bli_cntx_set_l1v_kers
 		(
 		 12,
@@ -72,11 +73,13 @@ void bli_cntx_init_epi( cntx_t* cntx )
           BLIS_SETV_KER,   BLIS_DOUBLE, bli_dsetv_epi_int,
 		 cntx
 		);
-  unsigned long int vector_length_sp;
-  unsigned long int vector_length_dp;
+#endif
 
-  vector_length_sp = __builtin_epi_vsetvlmax(__epi_e32, __epi_m1);
-  vector_length_dp = __builtin_epi_vsetvlmax(__epi_e64, __epi_m1);
+	unsigned long int vector_length_sp;
+	unsigned long int vector_length_dp;
+
+	vector_length_sp = __builtin_epi_vsetvlmax(__epi_e32, __epi_m1);
+	vector_length_dp = __builtin_epi_vsetvlmax(__epi_e64, __epi_m1);
 
 	// Initialize level-3 blocksize objects with architecture-specific values.
 	//                                           s      d      c      z

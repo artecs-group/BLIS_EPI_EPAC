@@ -45,35 +45,36 @@ CONFIGS_INCL   += $(THIS_CONFIG)
 # NOTE: The build system will append these variables with various
 # general-purpose/configuration-agnostic flags in common.mk. You
 # may specify additional flags here as needed.
-CPPROCFLAGS    := -O2 -mepi -fno-vectorize -D_GNU_SOURCE #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
-CMISCFLAGS     := -O2 -mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
-CPICFLAGS      := -O2 -mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
-CWARNFLAGS     := -O2 -mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
+CPPROCFLAGS    := -D_GNU_SOURCE #-O2 -mepi #-fno-vectorize -D_GNU_SOURCE #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
+CMISCFLAGS     := -mepi -fno-vectorize #-O2 -std=gnu11 #-D_POSIX_C_SOURCE=200809L
+CPICFLAGS      := #-O2 -mepi #-fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
+CWARNFLAGS     := #-O2 -mepi #-fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
 
 ifneq ($(DEBUG_TYPE),off)
-CDBGFLAGS      := -g -O2 -mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
+CDBGFLAGS      := -g #-O2 -mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
 endif
 
 ifeq ($(DEBUG_TYPE),noopt)
-COPTFLAGS      := -O0 -mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
+COPTFLAGS      := #-O0 -mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
 else
-COPTFLAGS      := -O2 -mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
+COPTFLAGS      := #-O2 -mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
 endif
 
 # Flags specific to optimized kernels.
-CKOPTFLAGS     := $(COPTFLAGS) -O3
+CKOPTFLAGS     := $(COPTFLAGS) #-O3
 ifeq ($(CC_VENDOR),clang)
-CKVECFLAGS     := -O2 -mepi -fno-vectorize -mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
+CKVECFLAGS     := -O2 -mepi -fno-vectorize #-mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
 else
 $(error clang is required for this configuration.)
 endif
 
 # Flags specific to reference kernels.
-CROPTFLAGS     := $(CKOPTFLAGS) -mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
+CROPTFLAGS     := $(CKOPTFLAGS) #-mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
 ifeq ($(CC_VENDOR),clang)
-CRVECFLAGS     := $(CKVECFLAGS) -mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
+#CRVECFLAGS     := $(CKVECFLAGS) -fopenmp-simd #-mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
+CRVECFLAGS     := -mepi -fno-vectorize -fopenmp-simd #-mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
 else
-CRVECFLAGS     := $(CKVECFLAGS) -mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
+CRVECFLAGS     := $(CKVECFLAGS) #-mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
 endif
 
 # Store all of the variables here to new variables containing the
