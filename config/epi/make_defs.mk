@@ -46,7 +46,7 @@ CONFIGS_INCL   += $(THIS_CONFIG)
 # general-purpose/configuration-agnostic flags in common.mk. You
 # may specify additional flags here as needed.
 CPPROCFLAGS    := -D_GNU_SOURCE #-O2 -mepi #-fno-vectorize -D_GNU_SOURCE #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
-CMISCFLAGS     := -mepi -fno-vectorize #-O2 -std=gnu11 #-D_POSIX_C_SOURCE=200809L
+CMISCFLAGS     := -O2 -mepi -fno-vectorize #-O2 -std=gnu11 #-D_POSIX_C_SOURCE=200809L
 CPICFLAGS      := #-O2 -mepi #-fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
 CWARNFLAGS     := #-O2 -mepi #-fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
 
@@ -72,7 +72,7 @@ endif
 CROPTFLAGS     := $(CKOPTFLAGS) #-mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
 ifeq ($(CC_VENDOR),clang)
 #CRVECFLAGS     := $(CKVECFLAGS) -fopenmp-simd #-mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
-CRVECFLAGS     := -mepi -fno-vectorize -fopenmp-simd #-mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
+CRVECFLAGS     := -fopenmp-simd  -Rpass=loop-vectorize -Rpass-missed=loop-vectorize -Rpass-analysis=loop-vectorize #-mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
 else
 CRVECFLAGS     := $(CKVECFLAGS) #-mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
 endif
