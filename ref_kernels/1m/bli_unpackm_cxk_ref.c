@@ -41,6 +41,7 @@ do \
 	for ( dim_t k = n; k != 0; --k ) \
 	{ \
 		pragma \
+		_Pragma( "nounroll" ) \
 		for ( dim_t mn = 0; mn < cdim; mn++ ) \
 			PASTEMAC(ch,op)( *kappa_cast, *(pi1 + mn*dfac), *(alpha1 + mn*inca) ); \
 \
