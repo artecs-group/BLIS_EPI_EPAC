@@ -89,12 +89,12 @@
 # --- Section overrides ----------------------------------------------------
 
 0        # Utility
-1        # Level-1v kernels
+0        # Level-1v kernels
 0        # Level-1m
 0        # Level-1f kernels
 0        # Level-2
 0        # Level-3 micro-kernels
-0        # Level-3
+1        # Level-3
 
 
 # --- Utility --------------------------------------------------------------
@@ -284,7 +284,7 @@
 
 # --- Level-3 --------------------------------------------------------------
 
-0        # gemm
+1        # gemm
 -1 -1 -1 #   dimensions: m n k
 ??       #   parameters: transa transb
 
