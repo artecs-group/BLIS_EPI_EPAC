@@ -44,16 +44,29 @@
 
 void PASTEMAC(gemm,BLIS_OAPI_EX_SUF)
      (
-       obj_t*  alpha,
-       obj_t*  a,
-       obj_t*  b,
-       obj_t*  beta,
-       obj_t*  c,
-       cntx_t* cntx,
-       rntm_t* rntm
+       const obj_t*  alpha,
+       const obj_t*  a,
+       const obj_t*  b,
+       const obj_t*  beta,
+       const obj_t*  c,
+       const cntx_t* cntx,
+             rntm_t* rntm
      )
 {
 	bli_init_once();
+
+	// If C has a zero dimension, return early.
+	if ( bli_obj_has_zero_dim( c ) ) return;
+
+	// If alpha is zero, or if A or B has a zero dimension, scale C by beta
+	// and return early.
+	if ( bli_obj_equals( alpha, &BLIS_ZERO ) ||
+	     bli_obj_has_zero_dim( a ) ||
+	     bli_obj_has_zero_dim( b ) )
+	{
+		bli_scalm( beta, c );
+		return;
+	}
 
 	// If the rntm is non-NULL, it may indicate that we should forgo sup
 	// handling altogether.
@@ -102,7 +115,7 @@ void PASTEMAC(gemm,BLIS_OAPI_EX_SUF)
 
 	// If necessary, obtain a valid context from the gks using the induced
 	// method id determined above.
-	if ( cntx == NULL ) cntx = bli_gks_query_ind_cntx( im, dt );
+	if ( cntx == NULL ) cntx = bli_gks_query_ind_cntx( im );
 
 	// Check the operands.
 	if ( bli_error_checking_is_enabled() )
@@ -117,16 +130,29 @@ void PASTEMAC(gemm,BLIS_OAPI_EX_SUF)
 
 void PASTEMAC(gemmt,BLIS_OAPI_EX_SUF)
      (
-       obj_t*  alpha,
-       obj_t*  a,
-       obj_t*  b,
-       obj_t*  beta,
-       obj_t*  c,
-       cntx_t* cntx,
-       rntm_t* rntm
+       const obj_t*  alpha,
+       const obj_t*  a,
+       const obj_t*  b,
+       const obj_t*  beta,
+       const obj_t*  c,
+       const cntx_t* cntx,
+             rntm_t* rntm
      )
 {
 	bli_init_once();
+
+	// If C has a zero dimension, return early.
+	if ( bli_obj_has_zero_dim( c ) ) return;
+
+	// If alpha is zero, or if A or B has a zero dimension, scale C by beta
+	// and return early.
+	if ( bli_obj_equals( alpha, &BLIS_ZERO ) ||
+	     bli_obj_has_zero_dim( a ) ||
+	     bli_obj_has_zero_dim( b ) )
+	{
+		bli_scalm( beta, c );
+		return;
+	}
 
 	// Initialize a local runtime with global settings if necessary. Note
 	// that in the case that a runtime is passed in, we make a local copy.
@@ -153,7 +179,7 @@ void PASTEMAC(gemmt,BLIS_OAPI_EX_SUF)
 
 	// If necessary, obtain a valid context from the gks using the induced
 	// method id determined above.
-	if ( cntx == NULL ) cntx = bli_gks_query_ind_cntx( im, dt );
+	if ( cntx == NULL ) cntx = bli_gks_query_ind_cntx( im );
 
 	// Check the operands.
 	if ( bli_error_checking_is_enabled() )
@@ -166,13 +192,13 @@ void PASTEMAC(gemmt,BLIS_OAPI_EX_SUF)
 
 void PASTEMAC(her2k,BLIS_OAPI_EX_SUF)
      (
-       obj_t*  alpha,
-       obj_t*  a,
-       obj_t*  b,
-       obj_t*  beta,
-       obj_t*  c,
-       cntx_t* cntx,
-       rntm_t* rntm
+       const obj_t*  alpha,
+       const obj_t*  a,
+       const obj_t*  b,
+       const obj_t*  beta,
+       const obj_t*  c,
+       const cntx_t* cntx,
+             rntm_t* rntm
      )
 {
 	bli_init_once();
@@ -212,13 +238,13 @@ void PASTEMAC(her2k,BLIS_OAPI_EX_SUF)
 
 void PASTEMAC(syr2k,BLIS_OAPI_EX_SUF)
      (
-       obj_t*  alpha,
-       obj_t*  a,
-       obj_t*  b,
-       obj_t*  beta,
-       obj_t*  c,
-       cntx_t* cntx,
-       rntm_t* rntm
+       const obj_t*  alpha,
+       const obj_t*  a,
+       const obj_t*  b,
+       const obj_t*  beta,
+       const obj_t*  c,
+       const cntx_t* cntx,
+             rntm_t* rntm
      )
 {
 	bli_init_once();
@@ -244,14 +270,14 @@ void PASTEMAC(syr2k,BLIS_OAPI_EX_SUF)
 
 void PASTEMAC(hemm,BLIS_OAPI_EX_SUF)
      (
-       side_t  side,
-       obj_t*  alpha,
-       obj_t*  a,
-       obj_t*  b,
-       obj_t*  beta,
-       obj_t*  c,
-       cntx_t* cntx,
-       rntm_t* rntm
+             side_t  side,
+       const obj_t*  alpha,
+       const obj_t*  a,
+       const obj_t*  b,
+       const obj_t*  beta,
+       const obj_t*  c,
+       const cntx_t* cntx,
+             rntm_t* rntm
      )
 {
 	bli_init_once();
@@ -281,7 +307,7 @@ void PASTEMAC(hemm,BLIS_OAPI_EX_SUF)
 
 	// If necessary, obtain a valid context from the gks using the induced
 	// method id determined above.
-	if ( cntx == NULL ) cntx = bli_gks_query_ind_cntx( im, dt );
+	if ( cntx == NULL ) cntx = bli_gks_query_ind_cntx( im );
 
 	// Check the operands.
 	if ( bli_error_checking_is_enabled() )
@@ -294,14 +320,14 @@ void PASTEMAC(hemm,BLIS_OAPI_EX_SUF)
 
 void PASTEMAC(symm,BLIS_OAPI_EX_SUF)
      (
-       side_t  side,
-       obj_t*  alpha,
-       obj_t*  a,
-       obj_t*  b,
-       obj_t*  beta,
-       obj_t*  c,
-       cntx_t* cntx,
-       rntm_t* rntm
+             side_t  side,
+       const obj_t*  alpha,
+       const obj_t*  a,
+       const obj_t*  b,
+       const obj_t*  beta,
+       const obj_t*  c,
+       const cntx_t* cntx,
+             rntm_t* rntm
      )
 {
 	bli_init_once();
@@ -331,7 +357,7 @@ void PASTEMAC(symm,BLIS_OAPI_EX_SUF)
 
 	// If necessary, obtain a valid context from the gks using the induced
 	// method id determined above.
-	if ( cntx == NULL ) cntx = bli_gks_query_ind_cntx( im, dt );
+	if ( cntx == NULL ) cntx = bli_gks_query_ind_cntx( im );
 
 	// Check the operands.
 	if ( bli_error_checking_is_enabled() )
@@ -344,14 +370,14 @@ void PASTEMAC(symm,BLIS_OAPI_EX_SUF)
 
 void PASTEMAC(trmm3,BLIS_OAPI_EX_SUF)
      (
-       side_t  side,
-       obj_t*  alpha,
-       obj_t*  a,
-       obj_t*  b,
-       obj_t*  beta,
-       obj_t*  c,
-       cntx_t* cntx,
-       rntm_t* rntm
+             side_t  side,
+       const obj_t*  alpha,
+       const obj_t*  a,
+       const obj_t*  b,
+       const obj_t*  beta,
+       const obj_t*  c,
+       const cntx_t* cntx,
+             rntm_t* rntm
      )
 {
 	bli_init_once();
@@ -381,7 +407,7 @@ void PASTEMAC(trmm3,BLIS_OAPI_EX_SUF)
 
 	// If necessary, obtain a valid context from the gks using the induced
 	// method id determined above.
-	if ( cntx == NULL ) cntx = bli_gks_query_ind_cntx( im, dt );
+	if ( cntx == NULL ) cntx = bli_gks_query_ind_cntx( im );
 
 	// Check the operands.
 	if ( bli_error_checking_is_enabled() )
@@ -394,12 +420,12 @@ void PASTEMAC(trmm3,BLIS_OAPI_EX_SUF)
 
 void PASTEMAC(herk,BLIS_OAPI_EX_SUF)
      (
-       obj_t*  alpha,
-       obj_t*  a,
-       obj_t*  beta,
-       obj_t*  c,
-       cntx_t* cntx,
-       rntm_t* rntm
+       const obj_t*  alpha,
+       const obj_t*  a,
+       const obj_t*  beta,
+       const obj_t*  c,
+       const cntx_t* cntx,
+             rntm_t* rntm
      )
 {
 	bli_init_once();
@@ -428,12 +454,12 @@ void PASTEMAC(herk,BLIS_OAPI_EX_SUF)
 
 void PASTEMAC(syrk,BLIS_OAPI_EX_SUF)
      (
-       obj_t*  alpha,
-       obj_t*  a,
-       obj_t*  beta,
-       obj_t*  c,
-       cntx_t* cntx,
-       rntm_t* rntm
+       const obj_t*  alpha,
+       const obj_t*  a,
+       const obj_t*  beta,
+       const obj_t*  c,
+       const cntx_t* cntx,
+             rntm_t* rntm
      )
 {
 	bli_init_once();
@@ -453,12 +479,12 @@ void PASTEMAC(syrk,BLIS_OAPI_EX_SUF)
 
 void PASTEMAC(trmm,BLIS_OAPI_EX_SUF)
      (
-       side_t  side,
-       obj_t*  alpha,
-       obj_t*  a,
-       obj_t*  b,
-       cntx_t* cntx,
-       rntm_t* rntm
+             side_t  side,
+       const obj_t*  alpha,
+       const obj_t*  a,
+       const obj_t*  b,
+       const cntx_t* cntx,
+             rntm_t* rntm
      )
 {
 	bli_init_once();
@@ -487,7 +513,7 @@ void PASTEMAC(trmm,BLIS_OAPI_EX_SUF)
 
 	// If necessary, obtain a valid context from the gks using the induced
 	// method id determined above.
-	if ( cntx == NULL ) cntx = bli_gks_query_ind_cntx( im, dt );
+	if ( cntx == NULL ) cntx = bli_gks_query_ind_cntx( im );
 
 	// Check the operands.
 	if ( bli_error_checking_is_enabled() )
@@ -500,12 +526,12 @@ void PASTEMAC(trmm,BLIS_OAPI_EX_SUF)
 
 void PASTEMAC(trsm,BLIS_OAPI_EX_SUF)
      (
-       side_t  side,
-       obj_t*  alpha,
-       obj_t*  a,
-       obj_t*  b,
-       cntx_t* cntx,
-       rntm_t* rntm
+             side_t  side,
+       const obj_t*  alpha,
+       const obj_t*  a,
+       const obj_t*  b,
+       const cntx_t* cntx,
+             rntm_t* rntm
      )
 {
 	bli_init_once();
@@ -534,7 +560,7 @@ void PASTEMAC(trsm,BLIS_OAPI_EX_SUF)
 
 	// If necessary, obtain a valid context from the gks using the induced
 	// method id determined above.
-	if ( cntx == NULL ) cntx = bli_gks_query_ind_cntx( im, dt );
+	if ( cntx == NULL ) cntx = bli_gks_query_ind_cntx( im );
 
 	// Check the operands.
 	if ( bli_error_checking_is_enabled() )

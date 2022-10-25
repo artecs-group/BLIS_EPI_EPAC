@@ -50,7 +50,7 @@ extern bli_pthread_mutex_t global_rntm_mutex;
 
 void bli_thread_init( void )
 {
-	bli_thrcomm_init( 1, &BLIS_SINGLE_COMM );
+	bli_thrcomm_init( BLIS_SINGLE, 1, &BLIS_SINGLE_COMM );
 	bli_packm_thrinfo_init_single( &BLIS_PACKM_SINGLE_THREADED );
 	bli_l3_thrinfo_init_single( &BLIS_GEMM_SINGLE_THREADED );
 
@@ -67,12 +67,12 @@ void bli_thread_finalize( void )
 
 void bli_thread_range_sub
      (
-       thrinfo_t* thread,
-       dim_t      n,
-       dim_t      bf,
-       bool       handle_edge_low,
-       dim_t*     start,
-       dim_t*     end
+       const thrinfo_t* thread,
+             dim_t      n,
+             dim_t      bf,
+             bool       handle_edge_low,
+             dim_t*     start,
+             dim_t*     end
      )
 {
 	dim_t      n_way      = bli_thread_n_way( thread );
@@ -211,11 +211,11 @@ void bli_thread_range_sub
 
 siz_t bli_thread_range_l2r
      (
-       thrinfo_t* thr,
-       obj_t*     a,
-       blksz_t*   bmult,
-       dim_t*     start,
-       dim_t*     end
+       const thrinfo_t* thr,
+       const obj_t*     a,
+       const blksz_t*   bmult,
+             dim_t*     start,
+             dim_t*     end
      )
 {
 	num_t dt = bli_obj_dt( a );
@@ -231,11 +231,11 @@ siz_t bli_thread_range_l2r
 
 siz_t bli_thread_range_r2l
      (
-       thrinfo_t* thr,
-       obj_t*     a,
-       blksz_t*   bmult,
-       dim_t*     start,
-       dim_t*     end
+       const thrinfo_t* thr,
+       const obj_t*     a,
+       const blksz_t*   bmult,
+             dim_t*     start,
+             dim_t*     end
      )
 {
 	num_t dt = bli_obj_dt( a );
@@ -251,11 +251,11 @@ siz_t bli_thread_range_r2l
 
 siz_t bli_thread_range_t2b
      (
-       thrinfo_t* thr,
-       obj_t*     a,
-       blksz_t*   bmult,
-       dim_t*     start,
-       dim_t*     end
+       const thrinfo_t* thr,
+       const obj_t*     a,
+       const blksz_t*   bmult,
+             dim_t*     start,
+             dim_t*     end
      )
 {
 	num_t dt = bli_obj_dt( a );
@@ -271,11 +271,11 @@ siz_t bli_thread_range_t2b
 
 siz_t bli_thread_range_b2t
      (
-       thrinfo_t* thr,
-       obj_t*     a,
-       blksz_t*   bmult,
-       dim_t*     start,
-       dim_t*     end
+       const thrinfo_t* thr,
+       const obj_t*     a,
+       const blksz_t*   bmult,
+             dim_t*     start,
+             dim_t*     end
      )
 {
 	num_t dt = bli_obj_dt( a );
@@ -504,15 +504,15 @@ siz_t bli_find_area_trap_l
 
 siz_t bli_thread_range_weighted_sub
      (
-       thrinfo_t* restrict thread,
-       doff_t              diagoff,
-       uplo_t              uplo,
-       dim_t               m,
-       dim_t               n,
-       dim_t               bf,
-       bool                handle_edge_low,
-       dim_t*     restrict j_start_thr,
-       dim_t*     restrict j_end_thr
+       const thrinfo_t* thread,
+             doff_t     diagoff,
+             uplo_t     uplo,
+             dim_t      m,
+             dim_t      n,
+             dim_t      bf,
+             bool       handle_edge_low,
+             dim_t*     j_start_thr,
+             dim_t*     j_end_thr
      )
 {
 	dim_t      n_way   = bli_thread_n_way( thread );
@@ -641,15 +641,15 @@ siz_t bli_thread_range_weighted_sub
 
 siz_t bli_thread_range_mdim
      (
-       dir_t      direct,
-       thrinfo_t* thr,
-       obj_t*     a,
-       obj_t*     b,
-       obj_t*     c,
-       cntl_t*    cntl,
-       cntx_t*    cntx,
-       dim_t*     start,
-       dim_t*     end
+             dir_t      direct,
+       const thrinfo_t* thr,
+       const obj_t*     a,
+       const obj_t*     b,
+       const obj_t*     c,
+       const cntl_t*    cntl,
+       const cntx_t*    cntx,
+             dim_t*     start,
+             dim_t*     end
      )
 {
 	bszid_t  bszid  = bli_cntl_bszid( cntl );
@@ -665,8 +665,8 @@ siz_t bli_thread_range_mdim
 		else                                   bszid = BLIS_NR;
 	}
 
-	blksz_t* bmult  = bli_cntx_get_bmult( bszid, cntx );
-	obj_t*   x;
+	const blksz_t* bmult  = bli_cntx_get_bmult( bszid, cntx );
+	const obj_t*   x;
 	bool     use_weighted;
 
 	// Use the operation family to choose the one of the two matrices
@@ -700,15 +700,15 @@ siz_t bli_thread_range_mdim
 
 siz_t bli_thread_range_ndim
      (
-       dir_t      direct,
-       thrinfo_t* thr,
-       obj_t*     a,
-       obj_t*     b,
-       obj_t*     c,
-       cntl_t*    cntl,
-       cntx_t*    cntx,
-       dim_t*     start,
-       dim_t*     end
+             dir_t      direct,
+       const thrinfo_t* thr,
+       const obj_t*     a,
+       const obj_t*     b,
+       const obj_t*     c,
+       const cntl_t*    cntl,
+       const cntx_t*    cntx,
+             dim_t*     start,
+             dim_t*     end
      )
 {
 	bszid_t  bszid  = bli_cntl_bszid( cntl );
@@ -724,8 +724,8 @@ siz_t bli_thread_range_ndim
 		else                                   bszid = BLIS_NR;
 	}
 
-	blksz_t* bmult  = bli_cntx_get_bmult( bszid, cntx );
-	obj_t*   x;
+	const blksz_t* bmult  = bli_cntx_get_bmult( bszid, cntx );
+	const obj_t*   x;
 	bool     use_weighted;
 
 	// Use the operation family to choose the one of the two matrices
@@ -759,11 +759,11 @@ siz_t bli_thread_range_ndim
 
 siz_t bli_thread_range_weighted_l2r
      (
-       thrinfo_t* thr,
-       obj_t*     a,
-       blksz_t*   bmult,
-       dim_t*     start,
-       dim_t*     end
+       const thrinfo_t* thr,
+       const obj_t*     a,
+       const blksz_t*   bmult,
+             dim_t*     start,
+             dim_t*     end
      )
 {
 	siz_t area;
@@ -809,11 +809,11 @@ siz_t bli_thread_range_weighted_l2r
 
 siz_t bli_thread_range_weighted_r2l
      (
-       thrinfo_t* thr,
-       obj_t*     a,
-       blksz_t*   bmult,
-       dim_t*     start,
-       dim_t*     end
+       const thrinfo_t* thr,
+       const obj_t*     a,
+       const blksz_t*   bmult,
+             dim_t*     start,
+             dim_t*     end
      )
 {
 	siz_t area;
@@ -861,11 +861,11 @@ siz_t bli_thread_range_weighted_r2l
 
 siz_t bli_thread_range_weighted_t2b
      (
-       thrinfo_t* thr,
-       obj_t*     a,
-       blksz_t*   bmult,
-       dim_t*     start,
-       dim_t*     end
+       const thrinfo_t* thr,
+       const obj_t*     a,
+       const blksz_t*   bmult,
+             dim_t*     start,
+             dim_t*     end
      )
 {
 	siz_t area;
@@ -913,11 +913,11 @@ siz_t bli_thread_range_weighted_t2b
 
 siz_t bli_thread_range_weighted_b2t
      (
-       thrinfo_t* thr,
-       obj_t*     a,
-       blksz_t*   bmult,
-       dim_t*     start,
-       dim_t*     end
+       const thrinfo_t* thr,
+       const obj_t*     a,
+       const blksz_t*   bmult,
+             dim_t*     start,
+             dim_t*     end
      )
 {
 	siz_t area;
@@ -1295,31 +1295,31 @@ void bli_thread_partition_2x2_orig
 	dim_t tn1; // = *nt1;
 	dim_t tn2; // = *nt2;
 
-    // Partition a number of threads into two factors nt1 and nt2 such that
-    // nt1/nt2 ~= work1/work2. There is a fast heuristic algorithm and a
-    // slower optimal algorithm (which minimizes |nt1*work2 - nt2*work1|).
+	// Partition a number of threads into two factors nt1 and nt2 such that
+	// nt1/nt2 ~= work1/work2. There is a fast heuristic algorithm and a
+	// slower optimal algorithm (which minimizes |nt1*work2 - nt2*work1|).
 
-    // Return early small prime numbers of threads.
-    if ( n_thread < 4 )
-    {
-        tn1 = ( work1 >= work2 ? n_thread : 1 );
-        tn2 = ( work1 <  work2 ? n_thread : 1 );
+	// Return early small prime numbers of threads.
+	if ( n_thread < 4 )
+	{
+		tn1 = ( work1 >= work2 ? n_thread : 1 );
+		tn2 = ( work1 <  work2 ? n_thread : 1 );
 
 		return;
-    }
+	}
 
-    tn1 = 1;
-    tn2 = 1;
+	tn1 = 1;
+	tn2 = 1;
 
-    // Both algorithms need the prime factorization of n_thread.
-    bli_prime_factors_t factors;
-    bli_prime_factorization( n_thread, &factors );
+	// Both algorithms need the prime factorization of n_thread.
+	bli_prime_factors_t factors;
+	bli_prime_factorization( n_thread, &factors );
 
 #if 1
 
-    // Fast algorithm: assign prime factors in increasing order to whichever
-    // partition has more work to do. The work is divided by the number of
-    // threads assigned at each iteration. This algorithm is sub-optimal in
+	// Fast algorithm: assign prime factors in increasing order to whichever
+	// partition has more work to do. The work is divided by the number of
+	// threads assigned at each iteration. This algorithm is sub-optimal in
 	// some cases. We attempt to mitigate the cases that involve at least one
 	// factor of 2. For example, in the partitioning of 12 with equal work
 	// this algorithm tentatively finds 6x2. This factorization involves a
@@ -1330,22 +1330,22 @@ void bli_thread_partition_2x2_orig
 
 	//printf( "w1 w2 = %d %d (initial)\n", (int)work1, (int)work2 );
 
-    dim_t f;
-    while ( ( f = bli_next_prime_factor( &factors ) ) > 1 )
-    {
+	dim_t f;
+	while ( ( f = bli_next_prime_factor( &factors ) ) > 1 )
+	{
 		//printf( "w1 w2 = %4d %4d nt1 nt2 = %d %d ... f = %d\n", (int)work1, (int)work2, (int)tn1, (int)tn2, (int)f );
 
-        if ( work1 > work2 )
-        {
-            work1 /= f;
-            tn1 *= f;
-        }
-        else
-        {
-            work2 /= f;
-            tn2 *= f;
-        }
-    }
+		if ( work1 > work2 )
+		{
+			work1 /= f;
+			tn1 *= f;
+		}
+		else
+		{
+			work2 /= f;
+			tn2 *= f;
+		}
+	}
 
 	//printf( "w1 w2 = %4d %4d nt1 nt2 = %d %d\n", (int)work1, (int)work2, (int)tn1, (int)tn2 );
 
@@ -1391,78 +1391,78 @@ void bli_thread_partition_2x2_orig
 
 #else
 
-    // Slow algorithm: exhaustively constructs all factor pairs of n_thread and
-    // chooses the best one.
+	// Slow algorithm: exhaustively constructs all factor pairs of n_thread and
+	// chooses the best one.
 
-    // Eight prime factors handles n_thread up to 223092870.
-    dim_t fact[8];
-    dim_t mult[8];
+	// Eight prime factors handles n_thread up to 223092870.
+	dim_t fact[8];
+	dim_t mult[8];
 
-    // There is always at least one prime factor, so use if for initialization.
-    dim_t nfact = 1;
-    fact[0] = bli_next_prime_factor( &factors );
-    mult[0] = 1;
+	// There is always at least one prime factor, so use if for initialization.
+	dim_t nfact = 1;
+	fact[0] = bli_next_prime_factor( &factors );
+	mult[0] = 1;
 
-    // Collect the remaining prime factors, accounting for multiplicity of
-    // repeated factors.
-    dim_t f;
-    while ( ( f = bli_next_prime_factor( &factors ) ) > 1 )
-    {
-        if ( f == fact[nfact-1] )
-        {
-            mult[nfact-1]++;
-        }
-        else
-        {
-            nfact++;
-            fact[nfact-1] = f;
-            mult[nfact-1] = 1;
-        }
-    }
+	// Collect the remaining prime factors, accounting for multiplicity of
+	// repeated factors.
+	dim_t f;
+	while ( ( f = bli_next_prime_factor( &factors ) ) > 1 )
+	{
+		if ( f == fact[nfact-1] )
+		{
+			mult[nfact-1]++;
+		}
+		else
+		{
+			nfact++;
+			fact[nfact-1] = f;
+			mult[nfact-1] = 1;
+		}
+	}
 
-    // Now loop over all factor pairs. A single factor pair is denoted by how
-    // many of each prime factor are included in the first factor (ntaken).
-    dim_t ntake[8] = {0};
-    dim_t min_diff = INT_MAX;
+	// Now loop over all factor pairs. A single factor pair is denoted by how
+	// many of each prime factor are included in the first factor (ntaken).
+	dim_t ntake[8] = {0};
+	dim_t min_diff = INT_MAX;
 
-    // Loop over how many prime factors to assign to the first factor in the
-    // pair, for each prime factor. The total number of iterations is
-    // \Prod_{i=0}^{nfact-1} mult[i].
-    bool   done = FALSE;
-    while ( !done )
-    {
-        dim_t x = 1;
-        dim_t y = 1;
+	// Loop over how many prime factors to assign to the first factor in the
+	// pair, for each prime factor. The total number of iterations is
+	// \Prod_{i=0}^{nfact-1} mult[i].
+	bool   done = FALSE;
+	while ( !done )
+	{
+		dim_t x = 1;
+		dim_t y = 1;
 
-        // Form the factors by integer exponentiation and accumulation.
-        for  (dim_t i = 0 ; i < nfact ; i++ )
-        {
-            x *= bli_ipow( fact[i], ntake[i] );
-            y *= bli_ipow( fact[i], mult[i]-ntake[i] );
-        }
+		// Form the factors by integer exponentiation and accumulation.
+		for  (dim_t i = 0 ; i < nfact ; i++ )
+		{
+			x *= bli_ipow( fact[i], ntake[i] );
+			y *= bli_ipow( fact[i], mult[i]-ntake[i] );
+		}
 
-        // Check if this factor pair is optimal by checking
-        // |nt1*work2 - nt2*work1|.
-        dim_t diff = llabs( x*work2 - y*work1 );
-        if ( diff < min_diff )
-        {
-            min_diff = diff;
-            tn1 = x;
-            tn2 = y;
-        }
+		// Check if this factor pair is optimal by checking
+		// |nt1*work2 - nt2*work1|.
+		dim_t diff = llabs( x*work2 - y*work1 );
+		if ( diff < min_diff )
+		{
+			min_diff = diff;
+			tn1 = x;
+			tn2 = y;
+		}
 
-        // Go to the next factor pair by doing an "odometer loop".
-        for ( dim_t i = 0 ; i < nfact ; i++ )
-        {
-            if ( ++ntake[i] > mult[i] )
-            {
-                ntake[i] = 0;
-                if ( i == nfact-1 ) done = TRUE;
-                else continue;
-            }
-            break;
-        }
-    }
+		// Go to the next factor pair by doing an "odometer loop".
+		for ( dim_t i = 0 ; i < nfact ; i++ )
+		{
+			if ( ++ntake[i] > mult[i] )
+			{
+				ntake[i] = 0;
+				if ( i == nfact-1 ) done = TRUE;
+				else continue;
+			}
+			break;
+		}
+	}
 
 #endif
 
@@ -1554,6 +1554,26 @@ dim_t bli_thread_get_num_threads( void )
 	return bli_rntm_num_threads( &global_rntm );
 }
 
+timpl_t bli_thread_get_thread_impl( void )
+{
+	// We must ensure that global_rntm has been initialized.
+	bli_init_once();
+
+	return bli_rntm_thread_impl( &global_rntm );
+}
+
+static const char* bli_timpl_string[BLIS_NUM_THREAD_IMPLS] =
+{
+	[BLIS_SINGLE] = "single",
+	[BLIS_OPENMP] = "openmp",
+	[BLIS_POSIX]  = "pthreads",
+};
+
+const char* bli_thread_get_thread_impl_str( timpl_t ti )
+{
+	return bli_timpl_string[ti];
+}
+
 // ----------------------------------------------------------------------------
 
 void bli_thread_set_ways( dim_t jc, dim_t pc, dim_t ic, dim_t jr, dim_t ir )
@@ -1561,13 +1581,25 @@ void bli_thread_set_ways( dim_t jc, dim_t pc, dim_t ic, dim_t jr, dim_t ir )
 	// We must ensure that global_rntm has been initialized.
 	bli_init_once();
 
+#ifdef BLIS_ENABLE_MULTITHREADING
+
 	// Acquire the mutex protecting global_rntm.
 	bli_pthread_mutex_lock( &global_rntm_mutex );
 
-	bli_rntm_set_ways_only( jc, pc, ic, jr, ir, &global_rntm );
+	bli_rntm_set_ways_only( jc, 1, ic, jr, ir, &global_rntm );
+
+	// Ensure that the rntm_t is in a consistent state.
+	bli_rntm_sanitize( &global_rntm );
 
 	// Release the mutex protecting global_rntm.
 	bli_pthread_mutex_unlock( &global_rntm_mutex );
+
+#else
+
+	// When multithreading is disabled at compile time, ignore the user's
+	// request.
+
+#endif
 }
 
 void bli_thread_set_num_threads( dim_t n_threads )
@@ -1575,16 +1607,44 @@ void bli_thread_set_num_threads( dim_t n_threads )
 	// We must ensure that global_rntm has been initialized.
 	bli_init_once();
 
+#ifdef BLIS_ENABLE_MULTITHREADING
+
 	// Acquire the mutex protecting global_rntm.
 	bli_pthread_mutex_lock( &global_rntm_mutex );
 
 	bli_rntm_set_num_threads_only( n_threads, &global_rntm );
+
+	// Ensure that the rntm_t is in a consistent state.
+	bli_rntm_sanitize( &global_rntm );
+
+	// Release the mutex protecting global_rntm.
+	bli_pthread_mutex_unlock( &global_rntm_mutex );
+
+#else
+
+	// When multithreading is disabled at compile time, ignore the user's
+	// request.
+
+#endif
+}
+
+void bli_thread_set_thread_impl( timpl_t ti )
+{
+	// We must ensure that global_rntm has been initialized.
+	bli_init_once();
+
+	// Acquire the mutex protecting global_rntm.
+	bli_pthread_mutex_lock( &global_rntm_mutex );
+
+	bli_rntm_set_thread_impl_only( ti, &global_rntm );
 
 	// Release the mutex protecting global_rntm.
 	bli_pthread_mutex_unlock( &global_rntm_mutex );
 }
 
 // ----------------------------------------------------------------------------
+
+//#define PRINT_IMPL
 
 void bli_thread_init_rntm_from_env
      (
@@ -1595,69 +1655,97 @@ void bli_thread_init_rntm_from_env
 	// function is only called from bli_thread_init(), which is only called
 	// by bli_init_once().
 
-	bool  auto_factor = FALSE;
-	dim_t nt;
-	dim_t jc, pc, ic, jr, ir;
-
 #ifdef BLIS_ENABLE_MULTITHREADING
 
-	// Try to read BLIS_NUM_THREADS first.
-	nt = bli_env_get_var( "BLIS_NUM_THREADS", -1 );
+	timpl_t ti = BLIS_SINGLE;
 
-	// If BLIS_NUM_THREADS was not set, try to read OMP_NUM_THREADS.
-	if ( nt == -1 )
-		nt = bli_env_get_var( "OMP_NUM_THREADS", -1 );
+	// Try to read BLIS_THREAD_IMPL.
+	char* ti_env = bli_env_get_str( "BLIS_THREAD_IMPL" );
 
-	// Read the environment variables for the number of threads (ways
-	// of parallelism) for each individual loop.
-	jc = bli_env_get_var( "BLIS_JC_NT", -1 );
-	pc = bli_env_get_var( "BLIS_PC_NT", -1 );
-	ic = bli_env_get_var( "BLIS_IC_NT", -1 );
-	jr = bli_env_get_var( "BLIS_JR_NT", -1 );
-	ir = bli_env_get_var( "BLIS_IR_NT", -1 );
+	// If BLIS_THREAD_IMPL was not set, try to read BLIS_TI.
+	if ( ti_env == NULL ) ti_env = bli_env_get_str( "BLIS_TI" );
 
-	// If any BLIS_*_NT environment variable was set, then we ignore the
-	// value of BLIS_NUM_THREADS or OMP_NUM_THREADS and use the
-	// BLIS_*_NT values instead (with unset variables being treated as if
-	// they contained 1).
-	if ( jc != -1 || pc != -1 || ic != -1 || jr != -1 || ir != -1 )
+	if ( ti_env != NULL )
 	{
-		if ( jc == -1 ) jc = 1;
-		if ( pc == -1 ) pc = 1;
-		if ( ic == -1 ) ic = 1;
-		if ( jr == -1 ) jr = 1;
-		if ( ir == -1 ) ir = 1;
+		// If BLIS_THREAD_IMPL was set, parse the value. If the value was
+		// anything other than a "openmp" or "pthreads" (or reasonable
+		// variations thereof), interpret it as a request for single-threaded
+		// execution.
+		if      ( !strncmp( ti_env, "openmp",   6 ) ) ti = BLIS_OPENMP;
+		else if ( !strncmp( ti_env, "omp",      3 ) ) ti = BLIS_OPENMP;
+		else if ( !strncmp( ti_env, "pthreads", 8 ) ) ti = BLIS_POSIX;
+		else if ( !strncmp( ti_env, "pthread",  7 ) ) ti = BLIS_POSIX;
+		else if ( !strncmp( ti_env, "posix",    5 ) ) ti = BLIS_POSIX;
+		else                                          ti = BLIS_SINGLE;
 
-		// Unset the value for nt.
-		nt = -1;
+		#ifdef PRINT_IMPL
+		printf( "detected BLIS_THREAD_IMPL=%s.\n",
+		        bli_thread_get_thread_impl_str( ti );
+		#endif
+	}
+	else
+	{
+		// If BLIS_THREAD_IMPL was unset, default to the implementation that
+		// was determined at configure-time.
+		ti = BLIS_SINGLE;
+
+		#ifdef BLIS_ENABLE_OPENMP_AS_DEFAULT
+		ti = BLIS_OPENMP;
+		#endif
+		#ifdef BLIS_ENABLE_PTHREADS_AS_DEFAULT
+		ti = BLIS_POSIX;
+		#endif
+
+		#ifdef PRINT_IMPL
+		printf( "BLIS_THREAD_IMPL unset; defaulting to BLIS_THREAD_IMPL=%s.\n",
+		        bli_thread_get_thread_impl_str( ti );
+		#endif
 	}
 
-	// By this time, one of the following conditions holds:
-	// - nt is -1 and the ways for each loop are -1.
-	// - nt is -1 and the ways for each loop are all set.
-	// - nt is set and the ways for each loop are -1.
+	// ------------------------------------------------------------------------
 
-	// If nt is set (ie: not -1), then we know we will perform an automatic
-	// thread factorization (later, in bli_rntm.c).
-	if ( nt != -1 ) auto_factor = TRUE;
+	// Try to read BLIS_NUM_THREADS first.
+	dim_t nt = bli_env_get_var( "BLIS_NUM_THREADS", -1 );
 
-#else
+	// If BLIS_NUM_THREADS was not set, try to read BLIS_NT.
+	if ( nt == -1 ) nt = bli_env_get_var( "BLIS_NT", -1 );
 
-	// When multithreading is disabled, always set the rntm_t ways
-	// values to 1.
-	nt = -1;
-	jc = pc = ic = jr = ir = 1;
+	// If neither BLIS_NUM_THREADS nor BLIS_NT were set, try OMP_NUM_THREADS.
+	if ( nt == -1 ) nt = bli_env_get_var( "OMP_NUM_THREADS", -1 );
 
-#endif
+	// ------------------------------------------------------------------------
+
+	// Read the environment variables for the number of threads (ways of
+	// parallelism) for each individual loop.
+	dim_t jc = bli_env_get_var( "BLIS_JC_NT", -1 );
+	dim_t pc = bli_env_get_var( "BLIS_PC_NT", -1 );
+	dim_t ic = bli_env_get_var( "BLIS_IC_NT", -1 );
+	dim_t jr = bli_env_get_var( "BLIS_JR_NT", -1 );
+	dim_t ir = bli_env_get_var( "BLIS_IR_NT", -1 );
+
+	// ------------------------------------------------------------------------
 
 	// Save the results back in the runtime object.
-	bli_rntm_set_auto_factor_only( auto_factor, rntm );
+	bli_rntm_set_thread_impl_only( ti, rntm );
 	bli_rntm_set_num_threads_only( nt, rntm );
 	bli_rntm_set_ways_only( jc, pc, ic, jr, ir, rntm );
 
-#if 0
-	printf( "bli_thread_init_rntm_from_env()\n" );
-	bli_rntm_print( rntm );
+	// ------------------------------------------------------------------------
+
+	// This function, bli_thread_init_rntm_from_env(), is only called when BLIS
+	// is initialized, and so we need to go one step further and process the
+	// rntm's contents into a standard form to ensure, for example, that none of
+	// the ways of parallelism are negative or zero (in case the user queries
+	// them later).
+	bli_rntm_sanitize( rntm );
+
+#else
+
+	// When multithreading is disabled, the global rntm can keep the values it
+	// was assigned at (static) initialization time.
+
 #endif
+
+	//printf( "bli_thread_init_rntm_from_env()\n" ); bli_rntm_print( rntm );
 }
 

@@ -72,7 +72,7 @@ endif
 CROPTFLAGS     := $(CKOPTFLAGS) #-mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
 ifeq ($(CC_VENDOR),clang)
 #CRVECFLAGS     := $(CKVECFLAGS) -fopenmp-simd #-mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
-CRVECFLAGS     := -fopenmp-simd  -Rpass=loop-vectorize -Rpass-missed=loop-vectorize -Rpass-analysis=loop-vectorize #-mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
+CRVECFLAGS     := -fopenmp-simd  -Rpass=loop-vectorize #-Rpass-missed=loop-vectorize -Rpass-analysis=loop-vectorize #-mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
 else
 CRVECFLAGS     := $(CKVECFLAGS) #-mepi -fno-vectorize #-std=gnu11 #-D_POSIX_C_SOURCE=200809L
 endif

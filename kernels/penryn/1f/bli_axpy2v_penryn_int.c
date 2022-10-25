@@ -53,7 +53,7 @@ void bli_daxpy2v_penryn_int
        double* restrict x, inc_t incx,
        double* restrict y, inc_t incy,
        double* restrict z, inc_t incz,
-       cntx_t* restrict cntx
+       cntx_t*          cntx
      )
 {
 	double*  restrict alpha_cast  = alpha;
@@ -110,7 +110,7 @@ void bli_daxpy2v_penryn_int
 	// Call the reference implementation if needed.
 	if ( use_ref == TRUE )
 	{
-		daxpy2v_ker_ft f = bli_cntx_get_l1f_ker_dt( BLIS_DOUBLE, BLIS_AXPY2V_KER, cntx );
+		daxpy2v_ker_ft f = bli_cntx_get_ukr_dt( BLIS_DOUBLE, BLIS_AXPY2V_KER, cntx );
 
 		f
 		(

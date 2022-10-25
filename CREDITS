@@ -16,6 +16,7 @@ but many others have contributed code and feedback, including
   Alex Arslan              @ararslan
   Vernon Austel                                (IBM, T.J. Watson Research Center)
   Satish Balay             @balay              (Argonne National Laboratory)
+  Kihiro Bando             @bandokihiro
   Matthew Brett            @matthew-brett      (University of Birmingham)
   Jérémie du Boisberranger @jeremiedbb
   Jed Brown                @jedbrown           (Argonne National Laboratory)
@@ -23,6 +24,7 @@ but many others have contributed code and feedback, including
   Dilyn Corner             @dilyn-corner
   Mat Cross                @matcross           (NAG)
                            @decandia50
+  Daniël de Kok            @danieldk           (Explosion)
   Kay Dewhurst             @jkd2016            (Max Planck Institute, Halle, Germany)
   Jeff Diamond                                 (Oracle)
   Johannes Dieterich       @iotamudelta
@@ -34,6 +36,7 @@ but many others have contributed code and feedback, including
   Roman Gareev             @gareevroman
   Richard Goldschmidt      @SuperFluffy
   Chris Goodyer
+  Alexander Grund          @Flamefire
   John Gunnels             @jagunnels          (IBM, T.J. Watson Research Center)
   Ali Emre Gülcü           @Lephar
   Jeff Hammond             @jeffhammond        (Intel)
@@ -46,6 +49,7 @@ but many others have contributed code and feedback, including
   Matthew Honnibal         @honnibal
   Stefan Husmann           @stefanhusmann
   Francisco Igual          @figual             (Universidad Complutense de Madrid)
+  Madeesh Kannan           @shadeMe
   Tony Kelman              @tkelman
   Lee Killough             @leekillough        (Cray)
   Mike Kistler             @mkistler           (IBM, Austin Research Laboratory)
@@ -64,6 +68,8 @@ but many others have contributed code and feedback, including
   Simon Lukas Märtens      @ACSimon33          (RWTH Aachen University)
   Devin Matthews           @devinamatthews     (The University of Texas at Austin)
   Stefanos Mavros          @smavros
+  Mithun Mohan             @MithunMohanKadavil (AMD)
+                           @moon-chilled
   Ilknur Mustafazade       @Runkli
                            @nagsingh
   Bhaskar Nallani          @BhaskarNallani     (AMD)
@@ -83,6 +89,7 @@ but many others have contributed code and feedback, including
   Michael Rader            @mrader1248
   Pradeep Rao              @pradeeptrgit       (AMD)
   Aleksei Rechinskii
+  Leick Robinson           @LeickR             (Oracle)
   Karl Rupp                @karlrupp
   Martin Schatz                                (The University of Texas at Austin)
   Nico Schlömer            @nschloe
@@ -104,6 +111,7 @@ but many others have contributed code and feedback, including
   Meghana Vankadari        @Meghana-vankadari  (AMD)
   Kiran Varaganti          @kvaragan           (AMD)
   Natalia Vassilieva                           (Hewlett Packard Enterprise)
+                           @h-vetinari
   Andrew Wildman           @awild82            (University of Washington)
   Zhang Xianyi             @xianyi             (Chinese Academy of Sciences)
   Benda Xu                 @heroxbd

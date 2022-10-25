@@ -48,7 +48,7 @@ void PASTEMAC3(ch,opname,arch,suf) \
        ctype*  restrict x, inc_t incx, \
        ctype*  restrict y, inc_t incy, \
        ctype*  restrict z, inc_t incz, \
-       cntx_t* restrict cntx  \
+       cntx_t*          cntx  \
      ) \
 { \
 	if ( bli_zero_dim1( n ) ) return; \
@@ -110,7 +110,7 @@ void PASTEMAC3(ch,opname,arch,suf) \
 		const num_t              dt     = PASTEMAC(ch,type); \
 		PASTECH(ch,axpyv_ker_ft) kfp_av \
 		= \
-		bli_cntx_get_l1v_ker_dt( dt, BLIS_AXPYV_KER, cntx ); \
+		bli_cntx_get_ukr_dt( dt, BLIS_AXPYV_KER, cntx ); \
 \
 		kfp_av \
 		( \

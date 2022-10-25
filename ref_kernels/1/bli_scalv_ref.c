@@ -43,7 +43,7 @@ void PASTEMAC3(ch,opname,arch,suf) \
        dim_t            n, \
        ctype*  restrict alpha, \
        ctype*  restrict x, inc_t incx, \
-       cntx_t* restrict cntx  \
+       cntx_t*          cntx  \
      ) \
 { \
 	if ( bli_zero_dim1( n ) ) return; \
@@ -58,7 +58,7 @@ void PASTEMAC3(ch,opname,arch,suf) \
 \
 		/* Query the context for the kernel function pointer. */ \
 		const num_t             dt     = PASTEMAC(ch,type); \
-		PASTECH(ch,setv_ker_ft) setv_p = bli_cntx_get_l1v_ker_dt( dt, BLIS_SETV_KER, cntx ); \
+		PASTECH(ch,setv_ker_ft) setv_p = bli_cntx_get_ukr_dt( dt, BLIS_SETV_KER, cntx ); \
 \
 		setv_p \
 		( \

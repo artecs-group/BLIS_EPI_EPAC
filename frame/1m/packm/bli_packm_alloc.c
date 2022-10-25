@@ -37,10 +37,10 @@
 
 void* bli_packm_alloc
      (
-       siz_t      size_needed,
-       rntm_t*    rntm,
-       cntl_t*    cntl,
-       thrinfo_t* thread
+             siz_t      size_needed,
+             rntm_t*    rntm,
+             cntl_t*    cntl,
+       const thrinfo_t* thread
      )
 {
 	// Query the pack buffer type from the control tree node.
@@ -58,11 +58,11 @@ void* bli_packm_alloc
 
 void* bli_packm_alloc_ex
      (
-       siz_t      size_needed,
-       packbuf_t  pack_buf_type,
-       rntm_t*    rntm,
-       cntl_t*    cntl,
-       thrinfo_t* thread
+             siz_t      size_needed,
+             packbuf_t  pack_buf_type,
+             rntm_t*    rntm,
+             cntl_t*    cntl,
+       const thrinfo_t* thread
      )
 {
 	// Query the address of the mem_t entry within the control tree node.
@@ -103,7 +103,7 @@ void* bli_packm_alloc_ex
 
 		// Broadcast the address of the chief thread's local mem_t entry to
 		// all threads.
-		local_mem_p = bli_thread_broadcast( thread, &local_mem_s );
+		local_mem_p = bli_thread_broadcast( rntm, thread, &local_mem_s );
 
 		// Save the chief thread's local mem_t entry to the mem_t field in
 		// this thread's control tree node.
@@ -111,7 +111,7 @@ void* bli_packm_alloc_ex
 
 		// Barrier so that the master thread doesn't return from the function
 		// before we are done reading.
-		bli_thread_barrier( thread );
+		bli_thread_barrier( rntm, thread );
 	}
 
 	return bli_mem_buffer( cntl_mem_p );

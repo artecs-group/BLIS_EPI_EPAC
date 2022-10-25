@@ -118,8 +118,11 @@ get-noopt-cxxflags-for   = $(strip $(CFLAGS_PRESET) \
 get-refinit-cflags-for   = $(strip $(call load-var-for,COPTFLAGS,$(1)) \
                                    $(call get-noopt-cflags-for,$(1)) \
                                    -DBLIS_CNAME=$(1) \
+                                   $(BUILD_ASANFLAGS) \
                                    $(BUILD_CPPFLAGS) \
                                    $(BUILD_SYMFLAGS) \
+                                   -DBLIS_IN_REF_KERNEL=1 \
+                                   -include $(CONFIG_PATH)/$(1)/bli_kernel_defs_$(1).h \
                             )
 
 get-refkern-cflags-for   = $(strip $(call load-var-for,CROPTFLAGS,$(1)) \
@@ -127,18 +130,23 @@ get-refkern-cflags-for   = $(strip $(call load-var-for,CROPTFLAGS,$(1)) \
                                    $(call get-noopt-cflags-for,$(1)) \
                                    $(COMPSIMDFLAGS) \
                                    -DBLIS_CNAME=$(1) \
+                                   $(BUILD_ASANFLAGS) \
                                    $(BUILD_CPPFLAGS) \
                                    $(BUILD_SYMFLAGS) \
+                                   -DBLIS_IN_REF_KERNEL=1 \
+                                   -include $(CONFIG_PATH)/$(1)/bli_kernel_defs_$(1).h \
                             )
 
 get-config-cflags-for    = $(strip $(call load-var-for,COPTFLAGS,$(1)) \
                                    $(call get-noopt-cflags-for,$(1)) \
+                                   $(BUILD_ASANFLAGS) \
                                    $(BUILD_CPPFLAGS) \
                                    $(BUILD_SYMFLAGS) \
                             )
 
 get-frame-cflags-for     = $(strip $(call load-var-for,COPTFLAGS,$(1)) \
                                    $(call get-noopt-cflags-for,$(1)) \
+                                   $(BUILD_ASANFLAGS) \
                                    $(BUILD_CPPFLAGS) \
                                    $(BUILD_SYMFLAGS) \
                             )
@@ -150,7 +158,7 @@ get-kernel-cflags-for    = $(strip $(call load-var-for,CKOPTFLAGS,$(1)) \
                                    $(BUILD_SYMFLAGS) \
                             )
 
-# When compiling sandboxes, we use flags similar to those of general framework
+# When compiling addons, we use flags similar to those of general framework
 # source. This ensures that the same code can be linked and run across various
 # sub-configurations.
 get-addon-c99flags-for   = $(strip $(call load-var-for,COPTFLAGS,$(1)) \
@@ -165,6 +173,15 @@ get-addon-cxxflags-for   = $(strip $(call load-var-for,COPTFLAGS,$(1)) \
                                    $(BUILD_CPPFLAGS) \
                                    $(BUILD_SYMFLAGS) \
                             )
+# When compiling addon kernels, we use flags similar to those of kernels
+# flags, except we also include the addon header paths.
+get-addon-kernel-c99flags-for = $(strip $(call load-var-for,CKOPTFLAGS,$(1)) \
+                                        $(call load-var-for,CKVECFLAGS,$(1)) \
+                                        $(call get-noopt-cflags-for,$(1)) \
+                                        $(CADDONINCFLAGS) \
+                                        $(BUILD_CPPFLAGS) \
+                                        $(BUILD_SYMFLAGS) \
+                                 )
 
 # When compiling sandboxes, we use flags similar to those of general framework
 # source. This ensures that the same code can be linked and run across various
@@ -188,27 +205,31 @@ get-sandbox-cxxflags-for = $(strip $(call load-var-for,COPTFLAGS,$(1)) \
 # Define a separate function that will return appropriate flags for use by
 # applications that want to use the same basic flags as those used when BLIS
 # was compiled. (NOTE: This is the same as the $(get-frame-cflags-for ...)
-# function, except that it omits two variables that contain flags exclusively
-# for use when BLIS is being compiled/built: BUILD_CPPFLAGS, which contains a
-# cpp macro that confirms that BLIS is being built; and BUILD_SYMFLAGS, which
-# contains symbol export flags that are only needed when a shared library is
-# being compiled/linked.)
+# function, except that it omits a few variables that contain flags exclusively
+# for use when BLIS is being compiled/built:
+# - BUILD_CPPFLAGS, which contains a cpp macro that confirms that BLIS
+#   is being built;
+# - BUILD_SYMFLAGS, which contains symbol export flags that are only
+#   needed when a shared library is being compiled/linked; and
+# - BUILD_ASANFLAGS, which contains a flag that causes the compiler to
+#   insert instrumentation for memory error detection.
 get-user-cflags-for      = $(strip $(call load-var-for,COPTFLAGS,$(1)) \
                                    $(call get-noopt-cflags-for,$(1)) \
                             )
 
 # Define functions that return messages appropriate for each non-verbose line
 # of compilation output.
-get-noopt-text          = "(CFLAGS for no optimization)"
-get-refinit-text-for    = "('$(1)' CFLAGS for ref. kernel init)"
-get-refkern-text-for    = "('$(1)' CFLAGS for ref. kernels)"
-get-config-text-for     = "('$(1)' CFLAGS for config code)"
-get-frame-text-for      = "('$(1)' CFLAGS for framework code)"
-get-kernel-text-for     = "('$(1)' CFLAGS for kernels)"
-get-addon-c99text-for   = "('$(1)' CFLAGS for addons)"
-get-addon-cxxtext-for   = "('$(1)' CXXFLAGS for addons)"
-get-sandbox-c99text-for = "('$(1)' CFLAGS for sandboxes)"
-get-sandbox-cxxtext-for = "('$(1)' CXXFLAGS for sandboxes)"
+get-noopt-text            = "(CFLAGS for no optimization)"
+get-refinit-text-for      = "('$(1)' CFLAGS for ref. kernel init)"
+get-refkern-text-for      = "('$(1)' CFLAGS for ref. kernels)"
+get-config-text-for       = "('$(1)' CFLAGS for config code)"
+get-frame-text-for        = "('$(1)' CFLAGS for framework code)"
+get-kernel-text-for       = "('$(1)' CFLAGS for kernels)"
+get-addon-c99text-for     = "('$(1)' CFLAGS for addons)"
+get-addon-cxxtext-for     = "('$(1)' CXXFLAGS for addons)"
+get-addon-kernel-text-for = "('$(1)' CFLAGS for addon kernels)"
+get-sandbox-c99text-for   = "('$(1)' CFLAGS for sandboxes)"
+get-sandbox-cxxtext-for   = "('$(1)' CXXFLAGS for sandboxes)"
 
 
 
@@ -338,7 +359,8 @@ SANDBOX_CXX_SUFS   := cc cpp cxx
 SANDBOX_SRC_SUFS   := $(SANDBOX_C99_SUFS) $(SANDBOX_CXX_SUFS)
 
 # Header suffixes.
-FRAME_HDR_SUFS     := h
+FRAME_H99_SUFS     := h
+FRAME_HDR_SUFS     := $(FRAME_H99_SUFS)
 
 ADDON_H99_SUFS     := h
 ADDON_HXX_SUFS     := hh hpp hxx
@@ -353,8 +375,8 @@ ALL_HDR_SUFS       := $(sort $(FRAME_HDR_SUFS) \
                              $(ADDON_HDR_SUFS) \
                              $(SANDBOX_HDR_SUFS) )
 
-ALL_H99_SUFS       := $(sort $(FRAME_HDR_SUFS) \
-                             $(ADDON_HDR_SUFS) \
+ALL_H99_SUFS       := $(sort $(FRAME_H99_SUFS) \
+                             $(ADDON_H99_SUFS) \
                              $(SANDBOX_H99_SUFS) )
 
 # The names of scripts that check output from the BLAS test drivers and
@@ -432,7 +454,7 @@ LIBBLIS            := libblis
 ifeq ($(OS_NAME),Darwin)
 SHLIB_EXT          := dylib
 else ifeq ($(IS_WIN),yes)
-ifeq ($(CC_VENDOR),gcc)
+ifeq ($(IS_MSVC),no)
 SHLIB_EXT          := dll.a
 else
 SHLIB_EXT          := lib
@@ -520,7 +542,7 @@ GIT_LOG    := $(GIT) log --decorate
 # manually override whatever they need.
 
 # Define the external libraries we may potentially need at link-time.
-ifeq ($(IS_WIN),yes)
+ifeq ($(IS_MSVC),yes)
 LIBM       :=
 else
 LIBM       := -lm
@@ -548,6 +570,11 @@ ifeq ($(DEBUG_TYPE),sde)
 LDFLAGS    := $(filter-out $(LIBMEMKIND),$(LDFLAGS))
 endif
 
+# If AddressSanitizer is enabled, add the compiler flag to LDFLAGS.
+ifeq ($(MK_ENABLE_ASAN),yes)
+LDFLAGS    += -fsanitize=address
+endif
+
 # Specify the shared library's 'soname' field.
 # NOTE: The flag for creating shared objects is different for Linux and OS X.
 ifeq ($(OS_NAME),Darwin)
@@ -562,7 +589,7 @@ else
 SOFLAGS    := -shared
 ifeq ($(IS_WIN),yes)
 # Windows shared library link flags.
-ifeq ($(CC_VENDOR),clang)
+ifeq ($(IS_MSVC),yes)
 SOFLAGS    += -Wl,-implib:$(BASE_LIB_PATH)/$(LIBBLIS).lib
 else
 SOFLAGS    += -Wl,--out-implib,$(BASE_LIB_PATH)/$(LIBBLIS).dll.a
@@ -683,7 +710,7 @@ $(foreach c, $(CONFIG_LIST_FAM), $(eval $(call append-var-for,CWARNFLAGS,$(c))))
 # --- Position-independent code flags (shared libraries only) ---
 
 # Emit position-independent code for dynamic linking.
-ifeq ($(IS_WIN),yes)
+ifeq ($(IS_MSVC),yes)
 # Note: Don't use any fPIC flags for Windows builds since all code is position-
 # independent.
 CPICFLAGS :=
@@ -735,6 +762,14 @@ endif
 # Determine default export behavior / visibility of symbols for clang.
 ifeq ($(CC_VENDOR),clang)
 ifeq ($(IS_WIN),yes)
+ifeq ($(IS_MSVC),no)
+# This is a clang build targetting MinGW-w64 env
+ifeq ($(EXPORT_SHARED),all)
+BUILD_SYMFLAGS := -Wl,--export-all-symbols, -Wl,--enable-auto-import
+else # ifeq ($(EXPORT_SHARED),all)
+BUILD_SYMFLAGS := -Wl,--exclude-all-symbols
+endif
+endif # ifeq ($(IS_MSVC),no)
 ifeq ($(EXPORT_SHARED),all)
 # NOTE: clang on Windows does not appear to support exporting all symbols
 # by default, and therefore we ignore the value of EXPORT_SHARED.
@@ -773,50 +808,60 @@ $(foreach c, $(CONFIG_LIST_FAM), $(eval $(call append-var-for,CXXLANGFLAGS,$(c))
 CPPROCFLAGS := -D_POSIX_C_SOURCE=200112L
 $(foreach c, $(CONFIG_LIST_FAM), $(eval $(call append-var-for,CPPROCFLAGS,$(c))))
 
+# --- AddressSanitizer flags ---
+
+ifeq ($(MK_ENABLE_ASAN),yes)
+BUILD_ASANFLAGS := -fsanitize=address
+else
+BUILD_ASANFLAGS :=
+endif
+
 # --- Threading flags ---
 
 # NOTE: We don't have to explicitly omit -pthread when --disable-system is given
-# since that option forces --enable-threading=none, and thus -pthread never gets
-# added to begin with.
+# since that option forces --enable-threading=single, and thus -pthread never
+# gets added to begin with.
+
+CTHREADFLAGS :=
 
 ifeq ($(CC_VENDOR),gcc)
-ifeq ($(THREADING_MODEL),auto)
-THREADING_MODEL := openmp
-endif
-ifeq ($(THREADING_MODEL),openmp)
-CTHREADFLAGS := -fopenmp
+#ifneq ($(findstring auto,$(THREADING_MODEL)),)
+#THREADING_MODEL := openmp
+#endif
+ifneq ($(findstring openmp,$(THREADING_MODEL)),)
+CTHREADFLAGS += -fopenmp
 LDFLAGS      += -fopenmp
 endif
-ifeq ($(THREADING_MODEL),pthreads)
-CTHREADFLAGS := -pthread
+ifneq ($(findstring pthreads,$(THREADING_MODEL)),)
+CTHREADFLAGS += -pthread
 LDFLAGS      += $(LIBPTHREAD)
 endif
 endif
 
 ifeq ($(CC_VENDOR),icc)
-ifeq ($(THREADING_MODEL),auto)
-THREADING_MODEL := openmp
-endif
-ifeq ($(THREADING_MODEL),openmp)
-CTHREADFLAGS := -fopenmp
+#ifneq ($(findstring auto,$(THREADING_MODEL)),)
+#THREADING_MODEL := openmp
+#endif
+ifneq ($(findstring openmp,$(THREADING_MODEL)),)
+CTHREADFLAGS += -fopenmp
 LDFLAGS      += -fopenmp
 endif
-ifeq ($(THREADING_MODEL),pthreads)
-CTHREADFLAGS := -pthread
+ifneq ($(findstring pthreads,$(THREADING_MODEL)),)
+CTHREADFLAGS += -pthread
 LDFLAGS      += $(LIBPTHREAD)
 endif
 endif
 
 ifeq ($(CC_VENDOR),clang)
-ifeq ($(THREADING_MODEL),auto)
-THREADING_MODEL := pthreads
-endif
-ifeq ($(THREADING_MODEL),openmp)
-CTHREADFLAGS := -fopenmp
+#ifneq ($(findstring auto,$(THREADING_MODEL)),)
+#THREADING_MODEL := pthreads
+#endif
+ifneq ($(findstring openmp,$(THREADING_MODEL)),)
+CTHREADFLAGS += -fopenmp
 LDFLAGS      += -fopenmp
 endif
-ifeq ($(THREADING_MODEL),pthreads)
-CTHREADFLAGS := -pthread
+ifneq ($(findstring pthreads,$(THREADING_MODEL)),)
+CTHREADFLAGS += -pthread
 LDFLAGS      += $(LIBPTHREAD)
 endif
 endif

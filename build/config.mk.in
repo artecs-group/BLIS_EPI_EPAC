@@ -5,6 +5,7 @@
 #  libraries.
 #
 #  Copyright (C) 2014, The University of Texas at Austin
+#  Copyright (C) 2022, Advanced Micro Devices, Inc.
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions are
@@ -72,6 +73,7 @@ OS_NAME           := @os_name@
 
 # Check for whether the operating system is Windows.
 IS_WIN            := @is_win@
+IS_MSVC           := @is_msvc@
 
 # The directory path to the top level of the source distribution. When
 # building in-tree, this path is ".". When building out-of-tree, this path
@@ -93,7 +95,7 @@ CC                := @CC@
 GCC_OT_4_9_0      := @gcc_older_than_4_9_0@
 GCC_OT_6_1_0      := @gcc_older_than_6_1_0@
 GCC_OT_9_1_0      := @gcc_older_than_9_1_0@
-GCC_OT_10_1_0     := @gcc_older_than_10_1_0@
+GCC_OT_10_3_0     := @gcc_older_than_10_3_0@
 CLANG_OT_9_0_0    := @clang_older_than_9_0_0@
 CLANG_OT_12_0_0   := @clang_older_than_12_0_0@
 AOCC_OT_2_0_0     := @aocc_older_than_2_0_0@
@@ -122,10 +124,13 @@ LDFLAGS_PRESET    := @ldflags_preset@
 # The level of debugging info to generate.
 DEBUG_TYPE        := @debug_type@
 
+# Whether to compile and link the AddressSanitizer library.
+MK_ENABLE_ASAN    := @enable_asan@
+
 # Whether operating system support was requested via --enable-system.
 ENABLE_SYSTEM     := @enable_system@
 
-# The requested threading model.
+# The requested threading model(s).
 THREADING_MODEL   := @threading_model@
 
 # Whether the compiler supports "#pragma omp simd" via the -fopenmp-simd option.
@@ -202,6 +207,9 @@ SANDBOX           := @sandbox@
 # The name of the pthreads library. If --disable-system was given, then this
 # variable is set to the empty value.
 LIBPTHREAD        := @libpthread@
+
+# Whether we should use AMD-customized versions of certain framework files.
+ENABLE_AMD_FRAME_TWEAKS := @enable_amd_frame_tweaks@
 
 # end of ifndef CONFIG_MK_INCLUDED conditional block
 endif

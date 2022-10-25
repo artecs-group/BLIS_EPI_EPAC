@@ -36,14 +36,14 @@
 
 err_t bli_gemmsup_int
      (
-       obj_t*  alpha,
-       obj_t*  a,
-       obj_t*  b,
-       obj_t*  beta,
-       obj_t*  c,
-       cntx_t* cntx,
-       rntm_t* rntm,
-       thrinfo_t* thread
+       const obj_t*  alpha,
+       const obj_t*  a,
+       const obj_t*  b,
+       const obj_t*  beta,
+       const obj_t*  c,
+       const cntx_t* cntx,
+             rntm_t* rntm,
+             thrinfo_t* thread
      )
 {
 #if 0
@@ -85,7 +85,7 @@ err_t bli_gemmsup_int
 	const bool    is_rcc_crc_ccr_ccc = !is_rrr_rrc_rcr_crr;
 
 	const num_t   dt         = bli_obj_dt( c );
-	const bool    row_pref   = bli_cntx_l3_sup_ker_prefers_rows_dt( dt, stor_id, cntx );
+	const bool    row_pref   = bli_cntx_ukr_prefers_rows_dt( dt, bli_stor3_ukr( stor_id ), cntx );
 
 	const bool    is_primary = ( row_pref ? is_rrr_rrc_rcr_crr
 	                                      : is_rcc_crc_ccr_ccc );
@@ -240,14 +240,14 @@ err_t bli_gemmsup_int
 
 err_t bli_gemmtsup_int
      (
-       obj_t*  alpha,
-       obj_t*  a,
-       obj_t*  b,
-       obj_t*  beta,
-       obj_t*  c,
-       cntx_t* cntx,
-       rntm_t* rntm,
-       thrinfo_t* thread
+       const obj_t*  alpha,
+       const obj_t*  a,
+       const obj_t*  b,
+       const obj_t*  beta,
+       const obj_t*  c,
+       const cntx_t* cntx,
+             rntm_t* rntm,
+             thrinfo_t* thread
      )
 {
 	const stor3_t stor_id = bli_obj_stor3_from_strides( c, a, b );
@@ -259,7 +259,7 @@ err_t bli_gemmtsup_int
 	const bool    is_rcc_crc_ccr_ccc = !is_rrr_rrc_rcr_crr;
 
 	const num_t   dt         = bli_obj_dt( c );
-	const bool    row_pref   = bli_cntx_l3_sup_ker_prefers_rows_dt( dt, stor_id, cntx );
+	const bool    row_pref   = bli_cntx_ukr_prefers_rows_dt( dt, bli_stor3_ukr( stor_id ), cntx );
 
 	const bool    is_primary = ( row_pref ? is_rrr_rrc_rcr_crr
 	                                      : is_rcc_crc_ccr_ccc );

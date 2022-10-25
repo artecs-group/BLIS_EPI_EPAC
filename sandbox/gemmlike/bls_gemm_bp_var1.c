@@ -156,7 +156,7 @@ void PASTECH2(bls_,ch,varname) \
 	/* Query the context for the microkernel address and cast it to its
 	   function pointer type. */ \
 	PASTECH(ch,gemm_ukr_ft) \
-               gemm_ukr = bli_cntx_get_l3_nat_ukr_dt( dt, BLIS_GEMM_UKR, cntx ); \
+               gemm_ukr = bli_cntx_get_ukr_dt( dt, BLIS_GEMM_UKR, cntx ); \
 \
 	/* Compute partitioning step values for each matrix of each loop. */ \
 	const inc_t jcstep_c = cs_c; \
@@ -446,7 +446,7 @@ void PASTECH2(bls_,ch,varname) \
 			/* This barrier is needed to prevent threads from starting to pack
 			   the next row panel of B before the current row panel is fully
 			   computed upon. */ \
-			bli_thread_barrier( thread_pb ); \
+			bli_thread_barrier( rntm, thread_pb ); \
 		} \
 	} \
 \

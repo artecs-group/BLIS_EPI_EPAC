@@ -51,7 +51,7 @@ void bli_ddotv_penryn_int
        double* restrict x, inc_t incx,
        double* restrict y, inc_t incy,
        double* restrict rho,
-       cntx_t* restrict cntx
+       cntx_t*          cntx
      )
 {
 	double*  restrict x_cast   = x;
@@ -104,7 +104,7 @@ void bli_ddotv_penryn_int
 	// Call the reference implementation if needed.
 	if ( use_ref == TRUE )
 	{
-		ddotv_ker_ft f = bli_cntx_get_l1v_ker_dt( BLIS_DOUBLE, BLIS_DOTV_KER, cntx );
+		ddotv_ker_ft f = bli_cntx_get_ukr_dt( BLIS_DOUBLE, BLIS_DOTV_KER, cntx );
 
 		f
 		(

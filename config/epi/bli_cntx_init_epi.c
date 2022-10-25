@@ -45,15 +45,38 @@ void bli_cntx_init_epi( cntx_t* cntx )
 
 	// Update the context with optimized native gemm micro-kernels and
 	// their storage preferences.
-	bli_cntx_set_l3_nat_ukrs
+	bli_cntx_set_ukrs
 	(
-	  3,
-	  //BLIS_GEMM_UKR, BLIS_FLOAT,          bli_sgemm_epi_scalar_24x8, TRUE,
+	  cntx, 
+
+	  // level-3
 	  BLIS_GEMM_UKR, BLIS_DOUBLE,         bli_dgemm_epi_scalar_16x1v, TRUE,
 	  BLIS_GEMMTRSM_L_UKR, BLIS_DOUBLE,   bli_dgemmtrsm_l_epi_scalar_16x1v,  TRUE,
 	  BLIS_GEMMTRSM_U_UKR, BLIS_DOUBLE,   bli_dgemmtrsm_u_epi_scalar_16x1v,  TRUE,
-	  cntx
+
+	  BLIS_VA_END
 	);
+
+	// Update the context with storage preferences.
+	bli_cntx_set_ukr_prefs
+	(
+	  cntx,
+
+	  // level-3
+	  BLIS_GEMM_UKR_ROW_PREF, BLIS_DOUBLE, TRUE,
+
+	  // gemmtrsm_l
+	  BLIS_GEMMTRSM_L_UKR_ROW_PREF, BLIS_FLOAT,    TRUE,
+	  BLIS_GEMMTRSM_L_UKR_ROW_PREF, BLIS_DOUBLE,   TRUE,
+
+	  // gemmtrsm_u
+	  BLIS_GEMMTRSM_U_UKR_ROW_PREF, BLIS_FLOAT,    TRUE,
+	  BLIS_GEMMTRSM_U_UKR_ROW_PREF, BLIS_DOUBLE,   TRUE,
+
+
+	  BLIS_VA_END
+	);
+
 
 #if 0
 	bli_cntx_set_l1v_kers
@@ -96,13 +119,16 @@ void bli_cntx_init_epi( cntx_t* cntx )
 	// blocksizes (and multiples) for native execution.
 	bli_cntx_set_blkszs
 	(
-	  BLIS_NAT, 5,
+	  cntx,
+
+	  // level-3
 	  BLIS_NC, &blkszs[ BLIS_NC ], BLIS_NR,
 	  BLIS_KC, &blkszs[ BLIS_KC ], BLIS_KR,
 	  BLIS_MC, &blkszs[ BLIS_MC ], BLIS_MR,
 	  BLIS_NR, &blkszs[ BLIS_NR ], BLIS_NR,
 	  BLIS_MR, &blkszs[ BLIS_MR ], BLIS_MR,
-	  cntx
+
+	  BLIS_VA_END
 	);
 
 }

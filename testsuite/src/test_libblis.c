@@ -42,6 +42,8 @@ char libblis_test_binary_name[ MAX_BINARY_NAME_LENGTH + 1 ];
 char libblis_test_parameters_filename[ MAX_FILENAME_LENGTH + 1 ];
 char libblis_test_operations_filename[ MAX_FILENAME_LENGTH + 1 ];
 
+bool libblis_test_quiet_mode = FALSE;
+
 char libblis_test_pass_string[ MAX_PASS_STRING_LENGTH + 1 ];
 char libblis_test_warn_string[ MAX_PASS_STRING_LENGTH + 1 ];
 char libblis_test_fail_string[ MAX_PASS_STRING_LENGTH + 1 ];
@@ -253,6 +255,7 @@ void libblis_test_level1v_ops( thread_data_t* tdata, test_params_t* params, test
 	libblis_test_dotv( tdata, params, &(ops->dotv) );
 	libblis_test_dotxv( tdata, params, &(ops->dotxv) );
 	libblis_test_normfv( tdata, params, &(ops->normfv) );
+	libblis_test_invscalv( tdata, params, &(ops->invscalv) );
 	libblis_test_scalv( tdata, params, &(ops->scalv) );
 	libblis_test_scal2v( tdata, params, &(ops->scal2v) );
 	libblis_test_setv( tdata, params, &(ops->setv) );
@@ -268,6 +271,7 @@ void libblis_test_level1m_ops( thread_data_t* tdata, test_params_t* params, test
 	libblis_test_axpym( tdata, params, &(ops->axpym) );
 	libblis_test_copym( tdata, params, &(ops->copym) );
 	libblis_test_normfm( tdata, params, &(ops->normfm) );
+	libblis_test_invscalm( tdata, params, &(ops->invscalm) );
 	libblis_test_scalm( tdata, params, &(ops->scalm) );
 	libblis_test_scal2m( tdata, params, &(ops->scal2m) );
 	libblis_test_setm( tdata, params, &(ops->setm) );
@@ -368,6 +372,7 @@ void libblis_test_read_ops_file( char* input_filename, test_ops_t* ops )
 	libblis_test_read_op_info( ops, input_stream, BLIS_NOID, BLIS_TEST_DIMS_M,   2, &(ops->dotv) );
 	libblis_test_read_op_info( ops, input_stream, BLIS_NOID, BLIS_TEST_DIMS_M,   2, &(ops->dotxv) );
 	libblis_test_read_op_info( ops, input_stream, BLIS_NOID, BLIS_TEST_DIMS_M,   0, &(ops->normfv) );
+	libblis_test_read_op_info( ops, input_stream, BLIS_NOID, BLIS_TEST_DIMS_M,   1, &(ops->invscalv) );
 	libblis_test_read_op_info( ops, input_stream, BLIS_NOID, BLIS_TEST_DIMS_M,   1, &(ops->scalv) );
 	libblis_test_read_op_info( ops, input_stream, BLIS_NOID, BLIS_TEST_DIMS_M,   1, &(ops->scal2v) );
 	libblis_test_read_op_info( ops, input_stream, BLIS_NOID, BLIS_TEST_DIMS_M,   0, &(ops->setv) );
@@ -379,6 +384,7 @@ void libblis_test_read_ops_file( char* input_filename, test_ops_t* ops )
 	libblis_test_read_op_info( ops, input_stream, BLIS_NOID, BLIS_TEST_DIMS_MN,  1, &(ops->axpym) );
 	libblis_test_read_op_info( ops, input_stream, BLIS_NOID, BLIS_TEST_DIMS_MN,  1, &(ops->copym) );
 	libblis_test_read_op_info( ops, input_stream, BLIS_NOID, BLIS_TEST_DIMS_MN,  0, &(ops->normfm) );
+	libblis_test_read_op_info( ops, input_stream, BLIS_NOID, BLIS_TEST_DIMS_MN,  1, &(ops->invscalm) );
 	libblis_test_read_op_info( ops, input_stream, BLIS_NOID, BLIS_TEST_DIMS_MN,  1, &(ops->scalm) );
 	libblis_test_read_op_info( ops, input_stream, BLIS_NOID, BLIS_TEST_DIMS_MN,  1, &(ops->scal2m) );
 	libblis_test_read_op_info( ops, input_stream, BLIS_NOID, BLIS_TEST_DIMS_MN,  0, &(ops->setm) );
@@ -720,6 +726,9 @@ void libblis_test_read_op_info( test_ops_t*  ops,
 
 void libblis_test_output_section_overrides( FILE* os, test_ops_t* ops )
 {
+	// Skip informational output if BLIS is running in quiet mode.
+	if ( libblis_test_quiet_mode ) return;
+
 	libblis_test_fprintf_c( os, "\n" );
 	libblis_test_fprintf_c( os, "--- Section overrides ---\n" );
 	libblis_test_fprintf_c( os, "\n" );
@@ -746,6 +755,17 @@ void libblis_test_output_params_struct( FILE* os, test_params_t* params )
 	cntx_t* cntx_c;
 	cntx_t* cntx_z;
 
+#ifndef BLIS_ENABLE_GEMM_MD
+	// Notify the user if mixed domain or mixed precision was requested.
+	if ( params->mixed_domain || params->mixed_precision )
+	{
+		libblis_test_printf_error( "mixed domain and/or mixed precision testing requested, but building against BLIS without mixed datatype support.\n" );
+	}
+#endif
+
+	// Skip informational output if BLIS is running in quiet mode.
+	if ( libblis_test_quiet_mode ) return;
+
 	// If bli_info_get_int_type_size() returns 32 or 64, the size is forced.
 	// Otherwise, the size is chosen automatically. We query the result of
 	// that automatic choice via sizeof(gint_t).
@@ -755,13 +775,34 @@ void libblis_test_output_params_struct( FILE* os, test_params_t* params )
 	else
 		int_type_size = sizeof(gint_t) * 8;
 
-	char impl_str[16];
+	char impl_str[32];
+	char def_impl_set_str[32];
+	char def_impl_unset_str[32];
 	char jrir_str[16];
 
-	// Describe the threading implementation.
-	if      ( bli_info_get_enable_openmp()   ) sprintf( impl_str, "openmp" );
-	else if ( bli_info_get_enable_pthreads() ) sprintf( impl_str, "pthreads" );
-	else    /* threading disabled */           sprintf( impl_str, "disabled" );
+	const bool    has_openmp      = bli_info_get_enable_openmp();
+	const bool    has_pthreads    = bli_info_get_enable_pthreads();
+	const bool    openmp_is_def   = bli_info_get_enable_openmp_as_default();
+	const bool    pthreads_is_def = bli_info_get_enable_pthreads_as_default();
+	const timpl_t ti              = bli_thread_get_thread_impl();
+
+	// List the available threading implementation(s).
+	if      ( has_openmp && has_pthreads   ) sprintf( impl_str, "openmp,pthreads,single" );
+	else if ( has_openmp                   ) sprintf( impl_str, "openmp,single" );
+	else if (               has_pthreads   ) sprintf( impl_str, "pthreads,single" );
+	else                                     sprintf( impl_str, "single only" );
+
+	// Describe the default threading implementation that would be active if
+	// or when BLIS_THREAD_IMPL is unset.
+	if      ( openmp_is_def   ) sprintf( def_impl_unset_str, "openmp" );
+	else if ( pthreads_is_def ) sprintf( def_impl_unset_str, "pthreads" );
+	else                        sprintf( def_impl_unset_str, "single" );
+
+	// Describe the default threading implementation as the testsuite was
+	// currently run.
+	if      ( ti == BLIS_OPENMP ) sprintf( def_impl_set_str, "openmp" );
+	else if ( ti == BLIS_POSIX  ) sprintf( def_impl_set_str, "pthreads" );
+	else                          sprintf( def_impl_set_str, "single" );
 
 	// Describe the status of jrir thread partitioning.
 	if   ( bli_info_get_thread_part_jrir_slab() ) sprintf( jrir_str, "slab" );
@@ -775,8 +816,7 @@ void libblis_test_output_params_struct( FILE* os, test_params_t* params )
 	char ir_nt_str[16];
 
 	// Query the number of ways of parallelism per loop (and overall) and
-	// convert these values into strings, with "unset" being used if the
-	// value returned was -1 (indicating the environment variable was unset).
+	// convert these values into strings.
 	dim_t nt    = bli_thread_get_num_threads();
 	dim_t jc_nt = bli_thread_get_jc_nt();
 	dim_t pc_nt = bli_thread_get_pc_nt();
@@ -784,18 +824,12 @@ void libblis_test_output_params_struct( FILE* os, test_params_t* params )
 	dim_t jr_nt = bli_thread_get_jr_nt();
 	dim_t ir_nt = bli_thread_get_ir_nt();
 
-	if (    nt == -1 ) sprintf(    nt_str, "unset" );
-	else               sprintf(    nt_str, "%d", ( int )   nt );
-	if ( jc_nt == -1 ) sprintf( jc_nt_str, "unset" );
-	else               sprintf( jc_nt_str, "%d", ( int )jc_nt );
-	if ( pc_nt == -1 ) sprintf( pc_nt_str, "unset" );
-	else               sprintf( pc_nt_str, "%d", ( int )pc_nt );
-	if ( ic_nt == -1 ) sprintf( ic_nt_str, "unset" );
-	else               sprintf( ic_nt_str, "%d", ( int )ic_nt );
-	if ( jr_nt == -1 ) sprintf( jr_nt_str, "unset" );
-	else               sprintf( jr_nt_str, "%d", ( int )jr_nt );
-	if ( ir_nt == -1 ) sprintf( ir_nt_str, "unset" );
-	else               sprintf( ir_nt_str, "%d", ( int )ir_nt );
+	sprintf(    nt_str, "%d", ( int )   nt );
+	sprintf( jc_nt_str, "%d", ( int )jc_nt );
+	sprintf( pc_nt_str, "%d", ( int )pc_nt );
+	sprintf( ic_nt_str, "%d", ( int )ic_nt );
+	sprintf( jr_nt_str, "%d", ( int )jr_nt );
+	sprintf( ir_nt_str, "%d", ( int )ir_nt );
 
 	// Set up rntm_t objects for each of the four families:
 	// gemm, herk, trmm, trsm.
@@ -865,7 +899,9 @@ void libblis_test_output_params_struct( FILE* os, test_params_t* params )
 	libblis_test_fprintf_c( os, "\n" );
 	libblis_test_fprintf_c( os, "--- BLIS parallelization info ---\n" );
 	libblis_test_fprintf_c( os, "\n" );
-	libblis_test_fprintf_c( os, "multithreading                 %s\n", impl_str );
+	libblis_test_fprintf_c( os, "multithreading modes           %s\n", impl_str );
+	libblis_test_fprintf_c( os, "  default mode                 %s\n", def_impl_unset_str );
+	libblis_test_fprintf_c( os, "  current mode                 %s\n", def_impl_set_str );
 	libblis_test_fprintf_c( os, "\n" );
 	libblis_test_fprintf_c( os, "thread auto-factorization        \n" );
 	libblis_test_fprintf_c( os, "  m dim thread ratio           %d\n", ( int )BLIS_THREAD_RATIO_M );
@@ -962,6 +998,7 @@ void libblis_test_output_params_struct( FILE* os, test_params_t* params )
 	                        bli_info_get_trsm_impl_string( BLIS_SCOMPLEX ),
 	                        bli_info_get_trsm_impl_string( BLIS_DCOMPLEX ) );
 	libblis_test_fprintf_c( os, "\n" );
+	libblis_test_fprintf_c( os, "\n" );
 
 	//bli_ind_disable_all();
 
@@ -977,7 +1014,7 @@ void libblis_test_output_params_struct( FILE* os, test_params_t* params )
 	libblis_test_fprintf_c( os, "\n" );
 
 	// Query a native context.
-	cntx = bli_gks_query_nat_cntx();
+	cntx = ( cntx_t* )bli_gks_query_nat_cntx();
 
 	libblis_test_fprintf_c( os, "level-3 blocksizes             s       d       c       z \n" );
 	libblis_test_fprintf_c( os, "  mc                     %7d %7d %7d %7d\n",
@@ -1062,6 +1099,34 @@ void libblis_test_output_params_struct( FILE* os, test_params_t* params )
 	                        bli_info_get_trsm_u_ukr_impl_string( BLIS_NAT, BLIS_DCOMPLEX ) );
 	libblis_test_fprintf_c( os, "\n" );
 	libblis_test_fprintf_c( os, "\n" );
+	libblis_test_fprintf_c( os, "micro-kernel prefers rows?     s       d       c       z\n" );
+	libblis_test_fprintf_c( os, "  gemm                   %7d %7d %7d %7d\n",
+	                        ( int )bli_cntx_ukr_prefers_rows_dt( BLIS_FLOAT,    BLIS_GEMM_UKR, cntx ),
+	                        ( int )bli_cntx_ukr_prefers_rows_dt( BLIS_DOUBLE,   BLIS_GEMM_UKR, cntx ),
+	                        ( int )bli_cntx_ukr_prefers_rows_dt( BLIS_SCOMPLEX, BLIS_GEMM_UKR, cntx ),
+	                        ( int )bli_cntx_ukr_prefers_rows_dt( BLIS_DCOMPLEX, BLIS_GEMM_UKR, cntx ) );
+	libblis_test_fprintf_c( os, "  gemmtrsm_l             %7d %7d %7d %7d\n",
+	                        ( int )bli_cntx_ukr_prefers_rows_dt( BLIS_FLOAT,    BLIS_GEMMTRSM_L_UKR, cntx ),
+	                        ( int )bli_cntx_ukr_prefers_rows_dt( BLIS_DOUBLE,   BLIS_GEMMTRSM_L_UKR, cntx ),
+	                        ( int )bli_cntx_ukr_prefers_rows_dt( BLIS_SCOMPLEX, BLIS_GEMMTRSM_L_UKR, cntx ),
+	                        ( int )bli_cntx_ukr_prefers_rows_dt( BLIS_DCOMPLEX, BLIS_GEMMTRSM_L_UKR, cntx ) );
+	libblis_test_fprintf_c( os, "  gemmtrsm_u             %7d %7d %7d %7d\n",
+	                        ( int )bli_cntx_ukr_prefers_rows_dt( BLIS_FLOAT,    BLIS_GEMMTRSM_U_UKR, cntx ),
+	                        ( int )bli_cntx_ukr_prefers_rows_dt( BLIS_DOUBLE,   BLIS_GEMMTRSM_U_UKR, cntx ),
+	                        ( int )bli_cntx_ukr_prefers_rows_dt( BLIS_SCOMPLEX, BLIS_GEMMTRSM_U_UKR, cntx ),
+	                        ( int )bli_cntx_ukr_prefers_rows_dt( BLIS_DCOMPLEX, BLIS_GEMMTRSM_U_UKR, cntx ) );
+	libblis_test_fprintf_c( os, "  trsm_l                 %7d %7d %7d %7d\n",
+	                        ( int )bli_cntx_ukr_prefers_rows_dt( BLIS_FLOAT,    BLIS_TRSM_L_UKR, cntx ),
+	                        ( int )bli_cntx_ukr_prefers_rows_dt( BLIS_DOUBLE,   BLIS_TRSM_L_UKR, cntx ),
+	                        ( int )bli_cntx_ukr_prefers_rows_dt( BLIS_SCOMPLEX, BLIS_TRSM_L_UKR, cntx ),
+	                        ( int )bli_cntx_ukr_prefers_rows_dt( BLIS_DCOMPLEX, BLIS_TRSM_L_UKR, cntx ) );
+	libblis_test_fprintf_c( os, "  trsm_u                 %7d %7d %7d %7d\n",
+	                        ( int )bli_cntx_ukr_prefers_rows_dt( BLIS_FLOAT,    BLIS_TRSM_U_UKR, cntx ),
+	                        ( int )bli_cntx_ukr_prefers_rows_dt( BLIS_DOUBLE,   BLIS_TRSM_U_UKR, cntx ),
+	                        ( int )bli_cntx_ukr_prefers_rows_dt( BLIS_SCOMPLEX, BLIS_TRSM_U_UKR, cntx ),
+	                        ( int )bli_cntx_ukr_prefers_rows_dt( BLIS_DCOMPLEX, BLIS_TRSM_U_UKR, cntx ) );
+	libblis_test_fprintf_c( os, "\n" );
+	libblis_test_fprintf_c( os, "\n" );
 
 	libblis_test_fprintf_c( os, "--- BLIS induced implementation info ---\n" );
 	libblis_test_fprintf_c( os, "\n" );
@@ -1080,9 +1145,11 @@ void libblis_test_output_params_struct( FILE* os, test_params_t* params )
 	                        bli_ind_oper_get_avail_impl_string( BLIS_GEMM, BLIS_DCOMPLEX ) );
 	libblis_test_fprintf_c( os, "\n" );
 
-	// Query a native context.
-	cntx_c = bli_gks_query_ind_cntx( im, BLIS_SCOMPLEX );
-	cntx_z = bli_gks_query_ind_cntx( im, BLIS_DCOMPLEX );
+	// Query a native context. NOTE: Now that we've removed the dt argument from
+	// bli_gks_query_ind_cntx(), we can consolidate cntx_c and cntx_z; there is
+	// no need to query two contexts since they are the same.
+	cntx_c = ( cntx_t* )bli_gks_query_ind_cntx( im );
+	cntx_z = ( cntx_t* )bli_gks_query_ind_cntx( im );
 
 	libblis_test_fprintf_c( os, "level-3 blocksizes                             c       z \n" );
 	libblis_test_fprintf_c( os, "  mc                                     %7d %7d\n",
@@ -1210,14 +1277,6 @@ void libblis_test_output_params_struct( FILE* os, test_params_t* params )
 	libblis_test_fprintf_c( os, "\n" );
 	libblis_test_fprintf( os, "\n" );
 
-#ifndef BLIS_ENABLE_GEMM_MD
-	// Notify the user if mixed domain or mixed precision was requested.
-	if ( params->mixed_domain || params->mixed_precision )
-	{
-		libblis_test_printf_error( "mixed domain and/or mixed precision testing requested, but building against BLIS without mixed datatype support.\n" );
-	}
-#endif
-
 	// If mixed domain or mixed precision was requested, we disable all
 	// induced methods except 1m and native execution.
 	if ( params->mixed_domain || params->mixed_precision )
@@ -1236,6 +1295,12 @@ void libblis_test_output_params_struct( FILE* os, test_params_t* params )
 
 void libblis_test_output_op_struct( FILE* os, test_op_t* op, char* op_str )
 {
+	// Skip informational output if BLIS is running in quiet mode.
+	if ( libblis_test_quiet_mode ) return;
+
+	libblis_test_fprintf_c( os, "--- %s ---\n", op_str );
+	libblis_test_fprintf_c( os, "\n" );
+
 	dimset_t dimset = op->dimset;
 
 	if      ( dimset == BLIS_TEST_DIMS_MNK )
@@ -2055,8 +2120,6 @@ void libblis_test_op_driver
 	if ( tdata->id == 0 )
 	{
 		// Output a heading and the contents of the op struct.
-		libblis_test_fprintf_c( stdout, "--- %s ---\n", op_str );
-		libblis_test_fprintf_c( stdout, "\n" );
 		libblis_test_output_op_struct( stdout, op, op_str );
 
 		// Also output to a matlab file if requested (and successfully opened).
@@ -2068,8 +2131,6 @@ void libblis_test_op_driver
 			// stdout (at the end of libblis_test_read_parameter_file()).
 			libblis_test_output_params_struct( output_stream, params );
 
-			libblis_test_fprintf_c( output_stream, "--- %s ---\n", op_str );
-			libblis_test_fprintf_c( output_stream, "\n" );
 			libblis_test_output_op_struct( output_stream, op, op_str );
 		}
 	}
@@ -2178,7 +2239,7 @@ void libblis_test_op_driver
 				// Query the implementation string associated with the
 				// current operation and datatype. If the operation is
 				// not level-3, we will always get back the native string.
-				ind_str = bli_ind_oper_get_avail_impl_string( op->opid, datatype );
+				ind_str = ( char* )bli_ind_oper_get_avail_impl_string( op->opid, datatype );
 
 				// Loop over the requested parameter combinations.
 				for ( pci = 0; pci < n_param_combos; ++pci )
@@ -2664,8 +2725,9 @@ void libblis_test_vobj_randomize( test_params_t* params, bool normalize, obj_t* 
 		bli_normfv( x, &kappa_r );
 		libblis_test_ceil_pow2( &kappa_r );
 		bli_copysc( &kappa_r, &kappa );
-		bli_invertsc( &kappa );
-		bli_scalv( &kappa, x );
+		//bli_invertsc( &kappa );
+		//bli_scalv( &kappa, x );
+		bli_invscalv( &kappa, x );
 	}
 }
 
@@ -2703,8 +2765,9 @@ void libblis_test_mobj_randomize( test_params_t* params, bool normalize, obj_t* 
 		bli_norm1m( a, &kappa_r );
 		libblis_test_ceil_pow2( &kappa_r );
 		bli_copysc( &kappa_r, &kappa );
-		bli_invertsc( &kappa );
-		bli_scalm( &kappa, a );
+		//bli_invertsc( &kappa );
+		//bli_scalm( &kappa, a );
+		bli_invscalm( &kappa, a );
 	}
 }
 
@@ -3051,7 +3114,7 @@ void libblis_test_parse_command_line( int argc, char** argv )
 	bli_getopt_init_state( 0, &state );
 
 	// Process all option arguments until we get a -1, which means we're done.
-	while( (opt = bli_getopt( argc, argv, "g:o:", &state )) != -1 )
+	while( (opt = bli_getopt( argc, ( const char** )argv, "g:o:q", &state )) != -1 )
 	{
 		// Explicitly typecast opt, which is an int, to a char. (Failing to
 		// typecast resulted in at least one user-reported problem whereby
@@ -3061,17 +3124,19 @@ void libblis_test_parse_command_line( int argc, char** argv )
 		switch( opt_ch )
 		{
 			case 'g':
-			libblis_test_printf_infoc( "detected -g option; using \"%s\" for parameters filename.\n", state.optarg );
 			strncpy( libblis_test_parameters_filename,
 			         state.optarg, MAX_FILENAME_LENGTH );
 			gave_option_g = TRUE;
 			break;
 
 			case 'o':
-			libblis_test_printf_infoc( "detected -o option; using \"%s\" for operations filename.\n", state.optarg );
 			strncpy( libblis_test_operations_filename,
 			         state.optarg, MAX_FILENAME_LENGTH );
 			gave_option_o = TRUE;
+			break;
+
+			case 'q':
+			libblis_test_quiet_mode = TRUE;
 			break;
 
 			case '?':
@@ -3085,20 +3150,36 @@ void libblis_test_parse_command_line( int argc, char** argv )
 
 	if ( gave_option_g == FALSE )
 	{
+		// Skip informational output if BLIS is running in quiet mode.
+		if ( !libblis_test_quiet_mode )
 		libblis_test_printf_infoc( "no -g option given; defaulting to \"%s\" for parameters filename.\n", PARAMETERS_FILENAME );
 
 		// Copy default parameters filename into its global string.
 		strncpy( libblis_test_parameters_filename,
 		         PARAMETERS_FILENAME, MAX_FILENAME_LENGTH );
 	}
+	else
+	{
+		// Skip informational output if BLIS is running in quiet mode.
+		if ( !libblis_test_quiet_mode )
+		libblis_test_printf_infoc( "detected -g option; using \"%s\" for parameters filename.\n", state.optarg );
+	}
 
 	if ( gave_option_o == FALSE )
 	{
+		// Skip informational output if BLIS is running in quiet mode.
+		if ( !libblis_test_quiet_mode )
 		libblis_test_printf_infoc( "no -o option given; defaulting to \"%s\" for operations filename.\n", OPERATIONS_FILENAME );
 
 		// Copy default operations filename into its global string.
 		strncpy( libblis_test_operations_filename,
 		         OPERATIONS_FILENAME, MAX_FILENAME_LENGTH );
+	}
+	else
+	{
+		// Skip informational output if BLIS is running in quiet mode.
+		if ( !libblis_test_quiet_mode )
+		libblis_test_printf_infoc( "detected -o option; using \"%s\" for operations filename.\n", state.optarg );
 	}
 
 	// If there are still arguments remaining after getopt() processing is

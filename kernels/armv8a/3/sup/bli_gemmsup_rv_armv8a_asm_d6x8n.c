@@ -37,7 +37,6 @@
 #include "blis.h"
 #include "assert.h"
 
-GEMMSUP_KER_PROT( double, d, gemmsup_r_armv8a_ref2 )
 
 // Label locality & misc.
 #include "../armv8a_asm_utils.h"
@@ -140,39 +139,62 @@ void bli_dgemmsup_rv_armv8a_asm_6x8n
        double*    restrict b, inc_t rs_b0, inc_t cs_b0,
        double*    restrict beta,
        double*    restrict c, inc_t rs_c0, inc_t cs_c0,
-       auxinfo_t* restrict data,
-       cntx_t*    restrict cntx
+       auxinfo_t*          data,
+       cntx_t*             cntx
      )
 {
   if ( m0 != 6 )
   {
-    // 5 = 4 + 1;
-    // 4;
-    //
-    while ( m0 >= 4 )
+    assert( m0 <= 9 );
+
+    // Manual separation.
+    dgemmsup_ker_ft ker_fp1 = NULL;
+    dgemmsup_ker_ft ker_fp2 = NULL;
+    dim_t           mr1, mr2;
+    
+    if ( m0 == 9 )
     {
-      bli_dgemmsup_rv_armv8a_asm_4x8n
-      (
-        conja, conjb, 4, n0, k0,
-	alpha, a, rs_a0, cs_a0, b, rs_b0, cs_b0,
-	beta, c, rs_c0, cs_c0, data, cntx
-      );
-      m0 -= 4;
-      a += 4 * rs_a0;
-      c += 4 * rs_c0;
+      ker_fp1 = bli_dgemmsup_rv_armv8a_asm_5x8n; mr1 = 5;
+      ker_fp2 = bli_dgemmsup_rv_armv8a_asm_4x8n; mr2 = 4;
+    }
+    if ( m0 == 8 )
+    {
+      ker_fp1 = bli_dgemmsup_rv_armv8a_asm_4x8n; mr1 = 4;
+      ker_fp2 = bli_dgemmsup_rv_armv8a_asm_4x8n; mr2 = 4;
+    }
+    if ( m0 == 7 )
+    {
+      ker_fp1 = bli_dgemmsup_rv_armv8a_asm_4x8n; mr1 = 4;
+      ker_fp2 = bli_dgemmsup_rv_armv8a_int_3x8mn; mr2 = 3;
+    }
+    if ( m0 == 5 )
+    {
+      ker_fp1 = bli_dgemmsup_rv_armv8a_asm_5x8n; mr1 = 5;
+    }
+    if ( m0 == 4 )
+    {
+      ker_fp1 = bli_dgemmsup_rv_armv8a_asm_4x8n; mr1 = 4;
+    }
+    if ( m0 < 4 )
+    {
+      ker_fp1 = bli_dgemmsup_rv_armv8a_int_3x8mn; mr1 = m0;
     }
 
-    // 3, 2, 1;
-    //
-    if ( m0 > 0 )
-    {
-      bli_dgemmsup_rv_armv8a_int_3x8mn
+    ker_fp1
+    (
+      conja, conjb, mr1, n0, k0,
+      alpha, a, rs_a0, cs_a0, b, rs_b0, cs_b0,
+      beta, c, rs_c0, cs_c0, data, cntx
+    );
+    a += mr1 * rs_a0;
+    c += mr1 * rs_c0;
+    if ( ker_fp2 )
+      ker_fp2
       (
-	conja, conjb, m0, n0, k0,
+	conja, conjb, mr2, n0, k0,
 	alpha, a, rs_a0, cs_a0, b, rs_b0, cs_b0,
 	beta, c, rs_c0, cs_c0, data, cntx
       );
-    }
     return;
   }
 

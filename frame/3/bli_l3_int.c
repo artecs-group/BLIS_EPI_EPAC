@@ -36,15 +36,15 @@
 
 void bli_l3_int
      (
-       obj_t*  alpha,
-       obj_t*  a,
-       obj_t*  b,
-       obj_t*  beta,
-       obj_t*  c,
-       cntx_t* cntx,
-       rntm_t* rntm,
-       cntl_t* cntl,
-       thrinfo_t* thread
+       const obj_t*  alpha,
+       const obj_t*  a,
+       const obj_t*  b,
+       const obj_t*  beta,
+       const obj_t*  c,
+       const cntx_t* cntx,
+             rntm_t* rntm,
+             cntl_t* cntl,
+             thrinfo_t* thread
      )
 {
 	obj_t a_local;
@@ -70,7 +70,7 @@ void bli_l3_int
 	{
 		if ( bli_thread_am_ochief( thread ) )
 			bli_scalm( beta, c );
-		bli_thread_barrier( thread );
+		bli_thread_barrier( rntm, thread );
 		return;
 	}
 
@@ -84,7 +84,7 @@ void bli_l3_int
 
 		if ( bli_thread_am_ochief( thread ) )
 			bli_scalm( beta, c );
-		bli_thread_barrier( thread );
+		bli_thread_barrier( rntm, thread );
 		return;
 	}
 
