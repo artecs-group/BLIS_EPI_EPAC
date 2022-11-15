@@ -2311,7 +2311,7 @@ void libblis_test_op_driver
 						if ( params->output_matlab_format )
 						{
 							fprintf( stdout,
-							         "%s%s( %3u, 1:%u ) = [%s  %7.2lf  %8.2le ]; %c %s\n",
+							         "%s%s( %3u, 1:%u ) = [%s  %7.3lf  %8.2le ]; %c %s\n",
 							         funcname_str, blank_str, pi, n_dims_print + 2,
 							         dims_str, perf, resid,
 							         OUTPUT_COMMENT_CHAR,
@@ -2321,7 +2321,7 @@ void libblis_test_op_driver
 							// opened).
 							if ( output_stream )
 							fprintf( output_stream,
-							         "%s%s( %3u, 1:%u ) = [%s  %7.2lf  %8.2le ]; %c %s\n",
+							         "%s%s( %3u, 1:%u ) = [%s  %7.3lf  %8.2le ]; %c %s\n",
 							         funcname_str, blank_str, pi, n_dims_print + 2,
 							         dims_str, perf, resid,
 							         OUTPUT_COMMENT_CHAR,
@@ -2330,7 +2330,7 @@ void libblis_test_op_driver
 						else
 						{
 							fprintf( stdout,
-							         "%s%s      %s  %7.2lf   %8.2le   %s\n",
+							         "%s%s      %s  %7.3lf   %8.2le   %s\n",
 							         funcname_str, blank_str,
 							         dims_str, perf, resid,
 							         pass_str );
@@ -2339,7 +2339,7 @@ void libblis_test_op_driver
 							// opened).
 							if ( output_stream )
 							fprintf( output_stream,
-							         "%s%s      %s  %7.2lf   %8.2le   %s\n",
+							         "%s%s      %s  %7.3lf   %8.2le   %s\n",
 							         funcname_str, blank_str,
 							         dims_str, perf, resid,
 							         pass_str );

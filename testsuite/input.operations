@@ -284,9 +284,9 @@
 
 # --- Level-3 --------------------------------------------------------------
 
-1        # gemm
+0        # gemm
 -1 -1 -1 #   dimensions: m n k
-??       #   parameters: transa transb
+nn       #   parameters: transa transb
 
 0        # gemmt
 -1 -1    #   dimensions: m k
@@ -326,5 +326,5 @@
 
 1        # trsm
 -1 -1    #   dimensions: m n
-????     #   parameters: side uploa transa diaga
+lu??     #   parameters: side uploa transa diaga
 
