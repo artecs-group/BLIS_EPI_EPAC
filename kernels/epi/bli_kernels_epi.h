@@ -33,6 +33,7 @@
 */
 
 GEMM_UKR_PROT( float,   s, gemm_epi_scalar_24x8 )
+GEMM_UKR_PROT( float,   s, gemm_epi_scalar_8x3v )
 GEMM_UKR_PROT( double,   d, gemm_epi_scalar_16x1v )
 GEMM_UKR_PROT( double,   d, gemm_epi_scalar_8x3v )
 GEMMTRSM_UKR_PROT( double,   d, gemmtrsm_l_epi_scalar_16x1v )

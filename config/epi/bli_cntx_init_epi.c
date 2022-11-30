@@ -50,11 +50,9 @@ void bli_cntx_init_epi( cntx_t* cntx )
 	  cntx, 
 
 	  // level-3
-	  //BLIS_GEMM_UKR, BLIS_DOUBLE,         bli_dgemm_epi_scalar_16x1v,
+	  BLIS_GEMM_UKR, BLIS_FLOAT,          bli_sgemm_epi_scalar_8x3v,
 	  BLIS_GEMM_UKR, BLIS_DOUBLE,         bli_dgemm_epi_scalar_8x3v,
-	  //BLIS_GEMMTRSM_L_UKR, BLIS_DOUBLE,   bli_dgemmtrsm_l_epi_scalar_16x1v,
 	  BLIS_GEMMTRSM_L_UKR, BLIS_DOUBLE,   bli_dgemmtrsm_l_epi_scalar_8x3v,
-	  //BLIS_GEMMTRSM_U_UKR, BLIS_DOUBLE,   bli_dgemmtrsm_u_epi_scalar_16x1v,
 	  BLIS_GEMMTRSM_U_UKR, BLIS_DOUBLE,   bli_dgemmtrsm_u_epi_scalar_8x3v,
 
 	  BLIS_VA_END
@@ -66,6 +64,7 @@ void bli_cntx_init_epi( cntx_t* cntx )
 	  cntx,
 
 	  // level-3
+	  BLIS_GEMM_UKR_ROW_PREF, BLIS_FLOAT, TRUE,
 	  BLIS_GEMM_UKR_ROW_PREF, BLIS_DOUBLE, TRUE,
 
 	  // gemmtrsm_l
@@ -104,24 +103,24 @@ void bli_cntx_init_epi( cntx_t* cntx )
 	unsigned long int vector_length_sp;
 	unsigned long int vector_length_dp;
 
-	vector_length_sp = __builtin_epi_vsetvlmax(__epi_e32, __epi_m1);
+	//vector_length_sp = __builtin_epi_vsetvlmax(__epi_e32, __epi_m1);
+	vector_length_sp = 240;
 	//vector_length_dp = __builtin_epi_vsetvlmax(__epi_e64, __epi_m1);
-
 	vector_length_dp = 240;
 
 	// Initialize level-3 blocksize objects with architecture-specific values.
 	//                                           s      d      c      z
 	//bli_blksz_init_easy( &blkszs[ BLIS_MR ],    vector_length_sp * 3, 16,                       0,     0 );
 	//bli_blksz_init_easy( &blkszs[ BLIS_NR ],     8,                   vector_length_dp * 1,     0,     0 );
-	bli_blksz_init_easy( &blkszs[ BLIS_MR ],    vector_length_sp * 3, 8,                       0,     0 );
-	bli_blksz_init_easy( &blkszs[ BLIS_NR ],     8,                   vector_length_dp * 3,     0,     0 );
+	bli_blksz_init_easy( &blkszs[ BLIS_MR ],     8, 8,                       0,     0 );
+	bli_blksz_init_easy( &blkszs[ BLIS_NR ],     vector_length_sp * 3,                   vector_length_dp * 3,     0,     0 );
 	//
-	bli_blksz_init_easy( &blkszs[ BLIS_MC ],  1536,   1024,     0,     0 );
+	bli_blksz_init_easy( &blkszs[ BLIS_MC ],  1024,   1024,     0,     0 );
 	//bli_blksz_init_easy( &blkszs[ BLIS_MC ],  1536,   128,     0,     0 );
 	//bli_blksz_init_easy( &blkszs[ BLIS_KC ],   528,   368,     0,     0 );
 	bli_blksz_init_easy( &blkszs[ BLIS_KC ],   512,   512,     0,     0 );
 	//bli_blksz_init_easy( &blkszs[ BLIS_NC ],  4096,  4608,     0,     0 );
-	bli_blksz_init_easy( &blkszs[ BLIS_NC ],  4096,  3600,     0,     0 );
+	bli_blksz_init_easy( &blkszs[ BLIS_NC ],  3600,  3600,     0,     0 );
 
 	// Update the context with the current architecture's register and cache
 	// blocksizes (and multiples) for native execution.
