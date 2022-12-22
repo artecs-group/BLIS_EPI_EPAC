@@ -15,20 +15,20 @@ c       # Matrix storage scheme(s) to test:
 c       # Vector storage scheme(s) to test:
         #   'c' = colvec / unit stride; 'j' = colvec / non-unit stride;
         #   'r' = rowvec / unit stride; 'i' = rowvec / non-unit stride
-0       # Test all combinations of storage schemes?
-1       # Perform all tests with alignment?
+1       # Test all combinations of storage schemes?
+0       # Perform all tests with alignment?
         #   '0' = do NOT align buffers/ldims; '1' = align buffers/ldims
 0       # Randomize vectors and matrices using:
         #   '0' = real values on [-1,1];
         #   '1' = powers of 2 in narrow precision range
 32      # General stride spacing (for cases when testing general stride)
-sd       # Datatype(s) to test:
+d       # Datatype(s) to test:
         #   's' = single real; 'c' = single complex;
         #   'd' = double real; 'z' = double complex
 0       # Test gemm with mixed-domain operands?
 0       # Test gemm with mixed-precision operands?
 720    # Problem size: first to test
-4800    # Problem size: maximum to test
+7200    # Problem size: maximum to test
 720    # Problem size: increment between experiments
         # Complex level-3 implementations to test:
 1       #   1m   ('1' = enable; '0' = disable)

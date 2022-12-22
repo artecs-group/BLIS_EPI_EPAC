@@ -38,8 +38,14 @@
 
 // -- MEMORY ALLOCATION --------------------------------------------------------
 
-#define BLIS_SIMD_SIZE 4096
-#define BLIS_SIMD_MAX_SIZE 4096
+//#define BLIS_SIMD_SIZE 4096
+//#define BLIS_SIMD_MAX_SIZE 4096
+#define BLIS_SIMD_SIZE 2048
+#define BLIS_SIMD_MAX_SIZE 2048
+
+
+
+
 //#define BLIS_SIMD_SIZE 2048
 //#define BLIS_SIMD_MAX_SIZE 2048
 #define BLIS_SIMD_NUM_REGISTERS 32
