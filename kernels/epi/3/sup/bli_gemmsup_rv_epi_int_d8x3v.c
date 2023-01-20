@@ -9,31 +9,29 @@
 // Prototype reference microkernels (TODO EPI).
 //GEMMSUP_KER_PROT( double,   d, gemmsup_r_epi_ref )
 
-	void bli_dgemmsup_rv_epi_int_8x3vm
-(
- conj_t              conja,
- conj_t              conjb,
- dim_t               m0,
- dim_t               n0,
- dim_t               k0,
- double*    restrict alpha,
- double*    restrict a, inc_t rs_a0, inc_t cs_a0,
- double*    restrict b, inc_t rs_b0, inc_t cs_b0,
- double*    restrict beta,
- double*    restrict c, inc_t rs_c0, inc_t cs_c0,
- auxinfo_t*          data,
- cntx_t*             cntx
- )
+void bli_dgemmsup_rv_epi_int_8x3vm (
+		conj_t              conja,
+		conj_t              conjb,
+		dim_t               m0,
+		dim_t               n0,
+		dim_t               k0,
+		double*    restrict alpha,
+		double*    restrict a, inc_t rs_a0, inc_t cs_a0,
+		double*    restrict b, inc_t rs_b0, inc_t cs_b0,
+		double*    restrict beta,
+		double*    restrict c, inc_t rs_c0, inc_t cs_c0,
+		auxinfo_t*          data,
+		cntx_t*             cntx
+		)
 {
-
 
 	// Typecast local copies of integers in case dim_t and inc_t are a
 	// different size than is expected by load instructions.
 	uint32_t k_iter = k0 / 1;
-	//uint32_t k_left = k0 % 1;
+	uint32_t k_left = k0 % 1;
 
 	uint32_t m_iter = m0 / 8;
-	//uint32_t m_left = m0 % 8;
+	uint32_t m_left = m0 % 8;
 
 	uint32_t rs_a = rs_a0;
 	uint32_t cs_a = cs_a0;
@@ -46,6 +44,11 @@
 
 	double * a_ii, * b_ii, * c_ii;
 
+	// Backup copies of a, b, c (for edge cases).
+	double * a_bak = a;
+	double * b_bak = b;
+	double * c_bak = c;
+
 	//void* a_next = bli_auxinfo_next_a( data );
 	//void* b_next = bli_auxinfo_next_b( data );
 
@@ -57,19 +60,23 @@
 
 	const dim_t     nr     = bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_NR, cntx ); 
 
+	unsigned long int vlen = 240;
 
-	/*
-	   GEMM_UKR_SETUP_CT( d, bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_MR, cntx ),
-	   bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_NR, cntx ),
-	   true ); 
-	   */
+	// Calculate effective usage of 3v vectors.
+	int effu_1 = ( n0 >= vlen ) ? vlen : n0; effu_1 = ( effu_1 < 0 ) ? 0 : effu_1;
+	int effu_2 = ( n0 >= 2 * vlen ) ? vlen : n0 - vlen; effu_2 = ( effu_2 < 0 ) ? 0 : effu_2;
+	int effu_3 = ( n0 >= 3 * vlen ) ? vlen : n0 - 2 * vlen; effu_3 = ( effu_3 < 0 ) ? 0 : effu_3;
 
-	//printf( "Microkernel: m: %d, n: %d, k: %d\n", m, n, k );
+	long gvl1 = __builtin_epi_vsetvl( effu_1, __epi_e64, __epi_m1 );
+	long gvl2 = __builtin_epi_vsetvl( effu_2, __epi_e64, __epi_m1 );
+	long gvl3 = __builtin_epi_vsetvl( effu_3, __epi_e64, __epi_m1 );
 
 	long gvl = __builtin_epi_vsetvl( nr/3, __epi_e64, __epi_m1 );
 
-	//unsigned long int vlen = __builtin_epi_vsetvlmax(__epi_e64, __epi_m1);
-	unsigned long int vlen = 240;
+	//printf( "m0: %d; n0: %d; k0: %d; effu_1: %d; effu_2: %d; effu_3: %d; nr: %d; m_iter: %d, m_left: %d\n", m0, n0, k0, effu_1, effu_2, effu_3, nr, m_iter, m_left );
+	//printf( "gvl: %ld; gvl1: %ld; gvl2: %ld; gvl3: %ld\n", gvl, gvl1, gvl2, gvl3 );
+
+	if ( m_iter == 0 ) goto consider_edge_cases;
 
 	// B vectors.
 	__epi_1xf64 bv00, bv01, bv02;
@@ -98,53 +105,53 @@
 
 		//printf(" --> Start ii: %d\n", ii);
 
-		bv00 = BROADCAST_f64( 0.0, gvl );
-		bv01 = BROADCAST_f64( 0.0, gvl );
-		bv02 = BROADCAST_f64( 0.0, gvl );
+		bv00 = BROADCAST_f64( 0.0, gvl1 );
+		bv01 = BROADCAST_f64( 0.0, gvl2 );
+		bv02 = BROADCAST_f64( 0.0, gvl3 );
 
-		cv0 = BROADCAST_f64( 0.0, gvl );
-		cv1 = BROADCAST_f64( 0.0, gvl );
-		cv2 = BROADCAST_f64( 0.0, gvl );
+		cv0 = BROADCAST_f64( 0.0, gvl1 );
+		cv1 = BROADCAST_f64( 0.0, gvl2 );
+		cv2 = BROADCAST_f64( 0.0, gvl3 );
 
 		// Initialize accummulators to 0.0 (row 0)
-		abv00 = BROADCAST_f64( 0.0, gvl );
-		abv01 = BROADCAST_f64( 0.0, gvl );
-		abv02 = BROADCAST_f64( 0.0, gvl );
+		abv00 = BROADCAST_f64( 0.0, gvl1 );
+		abv01 = BROADCAST_f64( 0.0, gvl2 );
+		abv02 = BROADCAST_f64( 0.0, gvl3 );
 
 		// Initialize accummulators to 0.0 (row 1)
-		abv10 = BROADCAST_f64( 0.0, gvl );
-		abv11 = BROADCAST_f64( 0.0, gvl );
-		abv12 = BROADCAST_f64( 0.0, gvl );
+		abv10 = BROADCAST_f64( 0.0, gvl1 );
+		abv11 = BROADCAST_f64( 0.0, gvl2 );
+		abv12 = BROADCAST_f64( 0.0, gvl3 );
 
 		// Initialize accummulators to 0.0 (row 2)
-		abv20 = BROADCAST_f64( 0.0, gvl );
-		abv21 = BROADCAST_f64( 0.0, gvl );
-		abv22 = BROADCAST_f64( 0.0, gvl );
+		abv20 = BROADCAST_f64( 0.0, gvl1 );
+		abv21 = BROADCAST_f64( 0.0, gvl2 );
+		abv22 = BROADCAST_f64( 0.0, gvl3 );
 
 		// Initialize accummulators to 0.0 (row 3)
-		abv30 = BROADCAST_f64( 0.0, gvl );
-		abv31 = BROADCAST_f64( 0.0, gvl );
-		abv32 = BROADCAST_f64( 0.0, gvl );
+		abv30 = BROADCAST_f64( 0.0, gvl1 );
+		abv31 = BROADCAST_f64( 0.0, gvl2 );
+		abv32 = BROADCAST_f64( 0.0, gvl3 );
 
 		// Initialize accummulators to 0.0 (row 4)
-		abv40 = BROADCAST_f64( 0.0, gvl );
-		abv41 = BROADCAST_f64( 0.0, gvl );
-		abv42 = BROADCAST_f64( 0.0, gvl );
+		abv40 = BROADCAST_f64( 0.0, gvl1 );
+		abv41 = BROADCAST_f64( 0.0, gvl2 );
+		abv42 = BROADCAST_f64( 0.0, gvl3 );
 
 		// Initialize accummulators to 0.0 (row 5)
-		abv50 = BROADCAST_f64( 0.0, gvl );
-		abv51 = BROADCAST_f64( 0.0, gvl );
-		abv52 = BROADCAST_f64( 0.0, gvl );
+		abv50 = BROADCAST_f64( 0.0, gvl1 );
+		abv51 = BROADCAST_f64( 0.0, gvl2 );
+		abv52 = BROADCAST_f64( 0.0, gvl3 );
 
 		// Initialize accummulators to 0.0 (row 6)
-		abv60 = BROADCAST_f64( 0.0, gvl );
-		abv61 = BROADCAST_f64( 0.0, gvl );
-		abv62 = BROADCAST_f64( 0.0, gvl );
+		abv60 = BROADCAST_f64( 0.0, gvl1 );
+		abv61 = BROADCAST_f64( 0.0, gvl2 );
+		abv62 = BROADCAST_f64( 0.0, gvl3 );
 
 		// Initialize accummulators to 0.0 (row 7)
-		abv70 = BROADCAST_f64( 0.0, gvl );
-		abv71 = BROADCAST_f64( 0.0, gvl );
-		abv72 = BROADCAST_f64( 0.0, gvl );
+		abv70 = BROADCAST_f64( 0.0, gvl1 );
+		abv71 = BROADCAST_f64( 0.0, gvl2 );
+		abv72 = BROADCAST_f64( 0.0, gvl3 );
 
 		// Reload a, b, c on each m iteration
 		a_ii = a;
@@ -154,49 +161,49 @@
 		for ( i = 0; i < k_iter; ++i )
 		{
 			// Begin iteration 0
-			bv00 = __builtin_epi_vload_1xf64( b_ii+0*vlen, gvl );
-			bv01 = __builtin_epi_vload_1xf64( b_ii+1*vlen, gvl );
-			bv02 = __builtin_epi_vload_1xf64( b_ii+2*vlen, gvl );
+			bv00 = __builtin_epi_vload_1xf64( b_ii+0*vlen, gvl1 );
+			bv01 = __builtin_epi_vload_1xf64( b_ii+1*vlen, gvl2 );
+			bv02 = __builtin_epi_vload_1xf64( b_ii+2*vlen, gvl3 );
 
 			sav1 = BROADCAST_f64( *(a_ii+0*rs_a), gvl );
-			abv00 = __builtin_epi_vfmacc_1xf64( abv00, sav1, bv00, gvl );
-			abv01 = __builtin_epi_vfmacc_1xf64( abv01, sav1, bv01, gvl );
-			abv02 = __builtin_epi_vfmacc_1xf64( abv02, sav1, bv02, gvl );
+			abv00 = __builtin_epi_vfmacc_1xf64( abv00, sav1, bv00, gvl1 );
+			abv01 = __builtin_epi_vfmacc_1xf64( abv01, sav1, bv01, gvl2 );
+			abv02 = __builtin_epi_vfmacc_1xf64( abv02, sav1, bv02, gvl3 );
 
 			sav1 = BROADCAST_f64( *(a_ii+1*rs_a), gvl );
-			abv10 = __builtin_epi_vfmacc_1xf64( abv10, sav1, bv00, gvl );
-			abv11 = __builtin_epi_vfmacc_1xf64( abv11, sav1, bv01, gvl );
-			abv12 = __builtin_epi_vfmacc_1xf64( abv12, sav1, bv02, gvl );
+			abv10 = __builtin_epi_vfmacc_1xf64( abv10, sav1, bv00, gvl1 );
+			abv11 = __builtin_epi_vfmacc_1xf64( abv11, sav1, bv01, gvl2 );
+			abv12 = __builtin_epi_vfmacc_1xf64( abv12, sav1, bv02, gvl3 );
 
 			sav1 = BROADCAST_f64( *(a_ii+2*rs_a), gvl );
-			abv20 = __builtin_epi_vfmacc_1xf64( abv20, sav1, bv00, gvl );
-			abv21 = __builtin_epi_vfmacc_1xf64( abv21, sav1, bv01, gvl );
-			abv22 = __builtin_epi_vfmacc_1xf64( abv22, sav1, bv02, gvl );
+			abv20 = __builtin_epi_vfmacc_1xf64( abv20, sav1, bv00, gvl1 );
+			abv21 = __builtin_epi_vfmacc_1xf64( abv21, sav1, bv01, gvl2 );
+			abv22 = __builtin_epi_vfmacc_1xf64( abv22, sav1, bv02, gvl3 );
 
 			sav1 = BROADCAST_f64( *(a_ii+3*rs_a), gvl );
-			abv30 = __builtin_epi_vfmacc_1xf64( abv30, sav1, bv00, gvl );
-			abv31 = __builtin_epi_vfmacc_1xf64( abv31, sav1, bv01, gvl );
-			abv32 = __builtin_epi_vfmacc_1xf64( abv32, sav1, bv02, gvl );
+			abv30 = __builtin_epi_vfmacc_1xf64( abv30, sav1, bv00, gvl1 );
+			abv31 = __builtin_epi_vfmacc_1xf64( abv31, sav1, bv01, gvl2 );
+			abv32 = __builtin_epi_vfmacc_1xf64( abv32, sav1, bv02, gvl3 );
 
 			sav1 = BROADCAST_f64( *(a_ii+4*rs_a), gvl );
-			abv40 = __builtin_epi_vfmacc_1xf64( abv40, sav1, bv00, gvl );
-			abv41 = __builtin_epi_vfmacc_1xf64( abv41, sav1, bv01, gvl );
-			abv42 = __builtin_epi_vfmacc_1xf64( abv42, sav1, bv02, gvl );
+			abv40 = __builtin_epi_vfmacc_1xf64( abv40, sav1, bv00, gvl1 );
+			abv41 = __builtin_epi_vfmacc_1xf64( abv41, sav1, bv01, gvl2 );
+			abv42 = __builtin_epi_vfmacc_1xf64( abv42, sav1, bv02, gvl3 );
 
 			sav1 = BROADCAST_f64( *(a_ii+5*rs_a), gvl );
-			abv50 = __builtin_epi_vfmacc_1xf64( abv50, sav1, bv00, gvl );
-			abv51 = __builtin_epi_vfmacc_1xf64( abv51, sav1, bv01, gvl );
-			abv52 = __builtin_epi_vfmacc_1xf64( abv52, sav1, bv02, gvl );
+			abv50 = __builtin_epi_vfmacc_1xf64( abv50, sav1, bv00, gvl1 );
+			abv51 = __builtin_epi_vfmacc_1xf64( abv51, sav1, bv01, gvl2 );
+			abv52 = __builtin_epi_vfmacc_1xf64( abv52, sav1, bv02, gvl3 );
 
 			sav1 = BROADCAST_f64( *(a_ii+6*rs_a), gvl );
-			abv60 = __builtin_epi_vfmacc_1xf64( abv60, sav1, bv00, gvl );
-			abv61 = __builtin_epi_vfmacc_1xf64( abv61, sav1, bv01, gvl );
-			abv62 = __builtin_epi_vfmacc_1xf64( abv62, sav1, bv02, gvl );
+			abv60 = __builtin_epi_vfmacc_1xf64( abv60, sav1, bv00, gvl1 );
+			abv61 = __builtin_epi_vfmacc_1xf64( abv61, sav1, bv01, gvl2 );
+			abv62 = __builtin_epi_vfmacc_1xf64( abv62, sav1, bv02, gvl3 );
 
 			sav1 = BROADCAST_f64( *(a_ii+7*rs_a), gvl );
-			abv70 = __builtin_epi_vfmacc_1xf64( abv70, sav1, bv00, gvl );
-			abv71 = __builtin_epi_vfmacc_1xf64( abv71, sav1, bv01, gvl );
-			abv72 = __builtin_epi_vfmacc_1xf64( abv72, sav1, bv02, gvl );
+			abv70 = __builtin_epi_vfmacc_1xf64( abv70, sav1, bv00, gvl1 );
+			abv71 = __builtin_epi_vfmacc_1xf64( abv71, sav1, bv01, gvl2 );
+			abv72 = __builtin_epi_vfmacc_1xf64( abv72, sav1, bv02, gvl3 );
 
 			// Adjust pointers for next iterations.
 			b_ii += rs_b; 
@@ -208,37 +215,37 @@
 		__epi_1xf64 alphav;
 		alphav = BROADCAST_f64( *alpha, gvl );
 
-		abv00 = __builtin_epi_vfmul_1xf64( abv00, alphav, gvl );
-		abv01 = __builtin_epi_vfmul_1xf64( abv01, alphav, gvl );
-		abv02 = __builtin_epi_vfmul_1xf64( abv02, alphav, gvl );
+		abv00 = __builtin_epi_vfmul_1xf64( abv00, alphav, gvl1 );
+		abv01 = __builtin_epi_vfmul_1xf64( abv01, alphav, gvl2 );
+		abv02 = __builtin_epi_vfmul_1xf64( abv02, alphav, gvl3 );
 
-		abv10 = __builtin_epi_vfmul_1xf64( abv10, alphav, gvl );
-		abv11 = __builtin_epi_vfmul_1xf64( abv11, alphav, gvl );
-		abv12 = __builtin_epi_vfmul_1xf64( abv12, alphav, gvl );
+		abv10 = __builtin_epi_vfmul_1xf64( abv10, alphav, gvl1 );
+		abv11 = __builtin_epi_vfmul_1xf64( abv11, alphav, gvl2 );
+		abv12 = __builtin_epi_vfmul_1xf64( abv12, alphav, gvl3 );
 
-		abv20 = __builtin_epi_vfmul_1xf64( abv20, alphav, gvl );
-		abv21 = __builtin_epi_vfmul_1xf64( abv21, alphav, gvl );
-		abv22 = __builtin_epi_vfmul_1xf64( abv22, alphav, gvl );
+		abv20 = __builtin_epi_vfmul_1xf64( abv20, alphav, gvl1 );
+		abv21 = __builtin_epi_vfmul_1xf64( abv21, alphav, gvl2 );
+		abv22 = __builtin_epi_vfmul_1xf64( abv22, alphav, gvl3 );
 
-		abv30 = __builtin_epi_vfmul_1xf64( abv30, alphav, gvl );
-		abv31 = __builtin_epi_vfmul_1xf64( abv31, alphav, gvl );
-		abv32 = __builtin_epi_vfmul_1xf64( abv32, alphav, gvl );
+		abv30 = __builtin_epi_vfmul_1xf64( abv30, alphav, gvl1 );
+		abv31 = __builtin_epi_vfmul_1xf64( abv31, alphav, gvl2 );
+		abv32 = __builtin_epi_vfmul_1xf64( abv32, alphav, gvl3 );
 
-		abv40 = __builtin_epi_vfmul_1xf64( abv40, alphav, gvl );
-		abv41 = __builtin_epi_vfmul_1xf64( abv41, alphav, gvl );
-		abv42 = __builtin_epi_vfmul_1xf64( abv42, alphav, gvl );
+		abv40 = __builtin_epi_vfmul_1xf64( abv40, alphav, gvl1 );
+		abv41 = __builtin_epi_vfmul_1xf64( abv41, alphav, gvl2 );
+		abv42 = __builtin_epi_vfmul_1xf64( abv42, alphav, gvl3 );
 
-		abv50 = __builtin_epi_vfmul_1xf64( abv50, alphav, gvl );
-		abv51 = __builtin_epi_vfmul_1xf64( abv51, alphav, gvl );
-		abv52 = __builtin_epi_vfmul_1xf64( abv52, alphav, gvl );
+		abv50 = __builtin_epi_vfmul_1xf64( abv50, alphav, gvl1 );
+		abv51 = __builtin_epi_vfmul_1xf64( abv51, alphav, gvl2 );
+		abv52 = __builtin_epi_vfmul_1xf64( abv52, alphav, gvl3 );
 
-		abv60 = __builtin_epi_vfmul_1xf64( abv60, alphav, gvl );
-		abv61 = __builtin_epi_vfmul_1xf64( abv61, alphav, gvl );
-		abv62 = __builtin_epi_vfmul_1xf64( abv62, alphav, gvl );
+		abv60 = __builtin_epi_vfmul_1xf64( abv60, alphav, gvl1 );
+		abv61 = __builtin_epi_vfmul_1xf64( abv61, alphav, gvl2 );
+		abv62 = __builtin_epi_vfmul_1xf64( abv62, alphav, gvl3 );
 
-		abv70 = __builtin_epi_vfmul_1xf64( abv70, alphav, gvl );
-		abv71 = __builtin_epi_vfmul_1xf64( abv71, alphav, gvl );
-		abv72 = __builtin_epi_vfmul_1xf64( abv72, alphav, gvl );
+		abv70 = __builtin_epi_vfmul_1xf64( abv70, alphav, gvl1 );
+		abv71 = __builtin_epi_vfmul_1xf64( abv71, alphav, gvl2 );
+		abv72 = __builtin_epi_vfmul_1xf64( abv72, alphav, gvl3 );
 
 		if ( *beta != 0.0 ) {
 
@@ -250,121 +257,121 @@
 			if( cs_c == 1 )
 			{
 				//printf("bnzero rs_c == %d; cs_c == 1\n", rs_c);
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 0*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv00, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 0*vlen,    cv0, gvl );
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 0*vlen, gvl1 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv00, cv0, betav, gvl1 );
+				__builtin_epi_vstore_1xf64( c_ii + 0*vlen, cv0, gvl1 );
 
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 1*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv01, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 1*vlen,    cv0, gvl );
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 1*vlen, gvl2 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv01, cv0, betav, gvl2 );
+				__builtin_epi_vstore_1xf64( c_ii + 1*vlen, cv0, gvl2 );
 
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 2*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv02, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 2*vlen,    cv0, gvl );
-
-				c_ii += rs_c;
-
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 0*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv10, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 0*vlen,    cv0, gvl );
-
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 1*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv11, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 1*vlen,    cv0, gvl );
-
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 2*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv12, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 2*vlen,    cv0, gvl );
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 2*vlen, gvl3 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv02, cv0, betav, gvl3 );
+				__builtin_epi_vstore_1xf64( c_ii + 2*vlen, cv0, gvl3 );
 
 				c_ii += rs_c;
 
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 0*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv20, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 0*vlen,    cv0, gvl );
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 0*vlen, gvl1 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv10, cv0, betav, gvl1 );
+				__builtin_epi_vstore_1xf64( c_ii + 0*vlen, cv0, gvl1 );
 
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 1*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv21, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 1*vlen,    cv0, gvl );
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 1*vlen, gvl2 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv11, cv0, betav, gvl2 );
+				__builtin_epi_vstore_1xf64( c_ii + 1*vlen, cv0, gvl2 );
 
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 2*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv22, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 2*vlen,    cv0, gvl );
-
-				c_ii += rs_c;
-
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 0*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv30, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 0*vlen,    cv0, gvl );
-
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 1*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv31, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 1*vlen,    cv0, gvl );
-
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 2*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv32, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 2*vlen,    cv0, gvl );
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 2*vlen, gvl3 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv12, cv0, betav, gvl3 );
+				__builtin_epi_vstore_1xf64( c_ii + 2*vlen, cv0, gvl3 );
 
 				c_ii += rs_c;
 
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 0*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv40, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 0*vlen,    cv0, gvl );
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 0*vlen, gvl1 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv20, cv0, betav, gvl1 );
+				__builtin_epi_vstore_1xf64( c_ii + 0*vlen, cv0, gvl1 );
 
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 1*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv41, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 1*vlen,    cv0, gvl );
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 1*vlen, gvl2 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv21, cv0, betav, gvl2 );
+				__builtin_epi_vstore_1xf64( c_ii + 1*vlen, cv0, gvl2 );
 
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 2*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv42, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 2*vlen,    cv0, gvl );
-
-				c_ii += rs_c;
-
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 0*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv50, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 0*vlen,    cv0, gvl );
-
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 1*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv51, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 1*vlen,    cv0, gvl );
-
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 2*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv52, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 2*vlen,    cv0, gvl );
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 2*vlen, gvl3 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv22, cv0, betav, gvl3 );
+				__builtin_epi_vstore_1xf64( c_ii + 2*vlen, cv0, gvl3 );
 
 				c_ii += rs_c;
 
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 0*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv60, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 0*vlen,    cv0, gvl );
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 0*vlen, gvl1 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv30, cv0, betav, gvl1 );
+				__builtin_epi_vstore_1xf64( c_ii + 0*vlen, cv0, gvl1 );
 
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 1*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv61, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 1*vlen,    cv0, gvl );
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 1*vlen, gvl2 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv31, cv0, betav, gvl2 );
+				__builtin_epi_vstore_1xf64( c_ii + 1*vlen, cv0, gvl2 );
 
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 2*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv62, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 2*vlen,    cv0, gvl );
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 2*vlen, gvl3 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv32, cv0, betav, gvl3 );
+				__builtin_epi_vstore_1xf64( c_ii + 2*vlen, cv0, gvl3 );
 
 				c_ii += rs_c;
 
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 0*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv70, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 0*vlen,    cv0, gvl );
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 0*vlen, gvl1 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv40, cv0, betav, gvl1 );
+				__builtin_epi_vstore_1xf64( c_ii + 0*vlen, cv0, gvl1 );
 
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 1*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv71, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 1*vlen,    cv0, gvl );
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 1*vlen, gvl2 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv41, cv0, betav, gvl2 );
+				__builtin_epi_vstore_1xf64( c_ii + 1*vlen, cv0, gvl2 );
 
-				cv0 = __builtin_epi_vload_1xf64( c_ii + 2*vlen, gvl );
-				cv0 = __builtin_epi_vfmacc_1xf64( abv72, cv0, betav, gvl );
-				__builtin_epi_vstore_1xf64( c_ii + 2*vlen,    cv0, gvl );
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 2*vlen, gvl3 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv42, cv0, betav, gvl3 );
+				__builtin_epi_vstore_1xf64( c_ii + 2*vlen, cv0, gvl3 );
+
+				c_ii += rs_c;
+
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 0*vlen, gvl1 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv50, cv0, betav, gvl1 );
+				__builtin_epi_vstore_1xf64( c_ii + 0*vlen, cv0, gvl1 );
+
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 1*vlen, gvl2 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv51, cv0, betav, gvl2 );
+				__builtin_epi_vstore_1xf64( c_ii + 1*vlen, cv0, gvl2 );
+
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 2*vlen, gvl3 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv52, cv0, betav, gvl3 );
+				__builtin_epi_vstore_1xf64( c_ii + 2*vlen, cv0, gvl3 );
+
+				c_ii += rs_c;
+
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 0*vlen, gvl1 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv60, cv0, betav, gvl1 );
+				__builtin_epi_vstore_1xf64( c_ii + 0*vlen, cv0, gvl1 );
+
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 1*vlen, gvl2 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv61, cv0, betav, gvl2 );
+				__builtin_epi_vstore_1xf64( c_ii + 1*vlen, cv0, gvl2 );
+
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 2*vlen, gvl3 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv62, cv0, betav, gvl3 );
+				__builtin_epi_vstore_1xf64( c_ii + 2*vlen, cv0, gvl3 );
+
+				c_ii += rs_c;
+
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 0*vlen, gvl1 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv70, cv0, betav, gvl1 );
+				__builtin_epi_vstore_1xf64( c_ii + 0*vlen, cv0, gvl1 );
+
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 1*vlen, gvl2 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv71, cv0, betav, gvl2 );
+				__builtin_epi_vstore_1xf64( c_ii + 1*vlen, cv0, gvl2 );
+
+				cv0 = __builtin_epi_vload_1xf64( c_ii + 2*vlen, gvl3 );
+				cv0 = __builtin_epi_vfmacc_1xf64( abv72, cv0, betav, gvl3 );
+				__builtin_epi_vstore_1xf64( c_ii + 2*vlen, cv0, gvl3 );
 
 				c_ii += rs_c;
 
 			}
 
-			// Column major.
+			// Column major. (TODO EPI gvl)
 			if( rs_c == 1 )
 			{
 				//printf("bnzero rs_c == 1; cs_c == %d\n", cs_c);
@@ -621,7 +628,26 @@
 
 	}
 
-	//GEMM_UKR_FLUSH_CT( d );
+consider_edge_cases:;
+
+		    if( m_left ) {
+			    const dim_t      nr_cur = nr;
+			    const dim_t      i_edge = m0 - ( dim_t )m_left;
+
+			    // Reference addresses of a, b, c are the backup ones.
+			    double* restrict cij = c_bak + i_edge*rs_c;
+			    double* restrict ai  = a_bak + m_iter * ps_a;
+			    double* restrict bj  = b_bak;
+
+			    bli_dgemmsup_rv_epi_int_8x3v (
+					    conja, conjb, m_left, n0, k0,
+					    alpha, ai, rs_a0, cs_a0, bj, rs_b0, cs_b0,
+					    beta, cij, rs_c0, cs_c0, data, cntx
+					    );	
+		    }
+
+		    //GEMM_UKR_FLUSH_CT( d );
+		    //printf("End microkernel call\n");
 
 }
 

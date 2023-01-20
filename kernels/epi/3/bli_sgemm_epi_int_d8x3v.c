@@ -41,10 +41,11 @@ void bli_sgemm_epi_scalar_8x3v
 
 	//printf( "Microkernel: m: %d, n: %d, k: %d\n", m, n, k );
 
-	long gvl = __builtin_epi_vsetvl( nr/3, __epi_e64, __epi_m1 );
+	long gvl = __builtin_epi_vsetvl( nr/3, __epi_e32, __epi_m1 );
 
         //unsigned long int vlen = __builtin_epi_vsetvlmax(__epi_e64, __epi_m1);
-        unsigned long int vlen = 240;
+        //unsigned long int vlen = 240;
+        unsigned long int vlen = 480;
 
 	// B vectors.
 	__epi_2xf32 bv00, bv01, bv02;

@@ -66,8 +66,17 @@ int main( int argc, char** argv )
 
 	//bli_error_checking_level_set( BLIS_NO_ERROR_CHECKING );
 
-	n_repeats = 3;
+	n_repeats = 1;
 
+	int ms[] = { 
+		12544, 3136, 3136, 3136, 3136, 3136, 3136, 3136, 3136, 3136, 3136, 3136, 784, 784, 784, 784, 784, 784, 784, 784, 784, 784, 784, 784, 784, 196, 196, 196, 196, 196, 196, 196 };
+	int ns[] = { 64, 64, 64, 256, 256, 64, 64, 256, 64, 64, 256, 64, 64, 256, 128, 128, 512, 512, 128, 128, 512, 128, 128, 512, 128, 128, 512, 256, 256, 1024, 1024, 256, 256, 1024, 256 
+	};
+
+	int ks[] = { 147, 64, 576, 64, 64, 256, 576, 64, 256, 576, 64, 256, 1152, 128, 256, 512, 1152, 128, 512, 1152, 128, 512, 1152, 128, 512, 2304, 256, 512, 1024, 2304, 256, 1024
+	};
+
+	int number = 32;
 #ifndef PRINT
 	p_begin = 200;
 	p_end   = 2000;
@@ -87,8 +96,8 @@ int main( int argc, char** argv )
 #endif
 
 #if 1
-	//dt = BLIS_FLOAT;
-	dt = BLIS_DOUBLE;
+	dt = BLIS_FLOAT;
+	//dt = BLIS_DOUBLE;
 #else
 	//dt = BLIS_SCOMPLEX;
 	dt = BLIS_DCOMPLEX;
@@ -114,15 +123,18 @@ int main( int argc, char** argv )
 	        ( unsigned long )0,
 	        ( unsigned long )0, 0.0 );
 
+	int i;
 	//for ( p = p_begin; p <= p_end; p += p_inc )
-	for ( p = p_end; p_begin <= p; p -= p_inc )
+	//for ( p = p_end; p_begin <= p; p -= p_inc )
+	for ( i = 0 ; i < 32; i++ )
 	{
-		if ( m_input < 0 ) m = p * ( dim_t )abs(m_input);
-		else               m =     ( dim_t )    m_input;
-		if ( n_input < 0 ) n = p * ( dim_t )abs(n_input);
-		else               n =     ( dim_t )    n_input;
-		if ( k_input < 0 ) k = p * ( dim_t )abs(k_input);
-		else               k =     ( dim_t )    k_input;
+		//m = ms[i];
+		//n = ns[i];
+		//k = ks[i];
+
+		m = ns[i];
+		n = ms[i];
+		k = ks[i];
 
 		bli_obj_create( dt, 1, 1, 0, 0, &alpha );
 		bli_obj_create( dt, 1, 1, 0, 0, &beta );
@@ -291,7 +303,7 @@ int main( int argc, char** argv )
 #else
 		printf( "data_gemm_%s", BLAS );
 #endif
-		printf( "( %2lu, 1:4 ) = [ %4lu %4lu %4lu %7.2f ];\n",
+		printf( "( %2lu, 1:4 ) = [ %4lu %4lu %4lu %7.4f ];\n",
 		        ( unsigned long )(p - p_begin)/p_inc + 1,
 		        ( unsigned long )m,
 		        ( unsigned long )k,
