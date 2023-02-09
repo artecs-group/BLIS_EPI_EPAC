@@ -640,7 +640,7 @@ consider_edge_cases:;
 			    float* restrict ai  = a_bak + m_iter * ps_a;
 			    float* restrict bj  = b_bak;
 
-			    bli_dgemmsup_rv_epi_int_8x3v (
+			    bli_sgemmsup_rv_epi_int_8x3v (
 					    conja, conjb, m_left, n0, k0,
 					    alpha, ai, rs_a0, cs_a0, bj, rs_b0, cs_b0,
 					    beta, cij, rs_c0, cs_c0, data, cntx

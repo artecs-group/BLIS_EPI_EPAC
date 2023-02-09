@@ -9,7 +9,7 @@
 // Prototype reference microkernels (TODO EPI).
 //GEMMSUP_KER_PROT( double,   d, gemmsup_r_epi_ref )
 
-void bli_sgemmsup_rv_epi_int_8x3vn (
+void bli_sgemmsup_cv_epi_int_8x3vn (
 		conj_t              conja,
 		conj_t              conjb,
 		dim_t               m0,
@@ -56,7 +56,7 @@ void bli_sgemmsup_rv_epi_int_8x3vn (
 	uint32_t ps_b   = bli_auxinfo_ps_b( data );
 	uint32_t ps_b8  = ps_b * sizeof( float );
 
-	printf( "Invoking bli_sgemmsup_rv_haswell_asm_6x8n( m0: %d, n0: %d, k0: %d,  rs_a0: %d, cs_a0: %d, rs_b0: %d, cs_b0: %d, rs_c0: %d, cs_c0: %d, ps_b: %d, alpha: %f, beta: %f\n", m0, n0, k0, rs_a0, cs_a0, rs_b0, cs_b0, rs_c0, cs_c0, ps_b, *alpha, *beta );
+	//printf( "Invoking bli_sgemmsup_rv_haswell_asm_6x8n( m0: %d, n0: %d, k0: %d,  rs_a0: %d, cs_a0: %d, rs_b0: %d, cs_b0: %d, rs_c0: %d, cs_c0: %d, ps_b: %d, alpha: %f, beta: %f\n", m0, n0, k0, rs_a0, cs_a0, rs_b0, cs_b0, rs_c0, cs_c0, ps_b, *alpha, *beta );
 
 	const dim_t     nr     = bli_cntx_get_blksz_def_dt( BLIS_FLOAT, BLIS_NR, cntx ); 
 
@@ -74,8 +74,8 @@ void bli_sgemmsup_rv_epi_int_8x3vn (
 
 	long gvl = __builtin_epi_vsetvl( nr/3, __epi_e32, __epi_m1 );
 
-	printf( "m0: %d; n0: %d; k0: %d; effu_1: %d; effu_2: %d; effu_3: %d; nr: %d; n_iter: %d, n_left: %d\n", m0, n0, k0, effu_1, effu_2, effu_3, nr, n_iter, n_left );
-	printf( "gvl: %ld; gvl1: %ld; gvl2: %ld; gvl3: %ld\n", gvl, gvl1, gvl2, gvl3 );
+	//printf( "m0: %d; n0: %d; k0: %d; effu_1: %d; effu_2: %d; effu_3: %d; nr: %d; n_iter: %d, n_left: %d\n", m0, n0, k0, effu_1, effu_2, effu_3, nr, n_iter, n_left );
+	//printf( "gvl: %ld; gvl1: %ld; gvl2: %ld; gvl3: %ld\n", gvl, gvl1, gvl2, gvl3 );
 
 	if ( n_iter == 0 ) goto consider_edge_cases;
 
