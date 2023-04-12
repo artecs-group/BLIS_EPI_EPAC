@@ -187,7 +187,8 @@ void bli_cntx_init_epi( cntx_t* cntx )
 	bli_blksz_init     ( &blkszs[ BLIS_MR_SUP ],     8,     8,    -1,    -1,
 	                                                 8,     8,    -1,    -1 );
 	bli_blksz_init_easy( &blkszs[ BLIS_NR_SUP ],    vector_length_sp * 3,     vector_length_dp * 3,    -1,    -1 );
-	bli_blksz_init_easy( &blkszs[ BLIS_MC_SUP ],  1024,  1024,    -1,    -1 );
+	//bli_blksz_init_easy( &blkszs[ BLIS_MC_SUP ],  1024,  1024,    -1,    -1 );
+	bli_blksz_init_easy( &blkszs[ BLIS_MC_SUP ],  1024,   720,    -1,    -1 );
 	bli_blksz_init_easy( &blkszs[ BLIS_KC_SUP ],   1440,   720,    -1,    -1 );
 	bli_blksz_init_easy( &blkszs[ BLIS_NC_SUP ],  72000,  72000,    -1,    -1 );
 	//bli_blksz_init_easy( &blkszs[ BLIS_MC_SUP ],   168,    72,    -1,    -1 );

@@ -74,7 +74,7 @@ void bli_dgemmsup_rv_epi_int_8x3vm (
 	long gvl = __builtin_epi_vsetvl( nr/3, __epi_e64, __epi_m1 );
 
 	//printf( "m0: %d; n0: %d; k0: %d; effu_1: %d; effu_2: %d; effu_3: %d; nr: %d; m_iter: %d, m_left: %d\n", m0, n0, k0, effu_1, effu_2, effu_3, nr, m_iter, m_left );
-	//printf( "gvl: %ld; gvl1: %ld; gvl2: %ld; gvl3: %ld\n", gvl, gvl1, gvl2, gvl3 );
+	//printf( "gvl: %ld; gvl0: %ld; gvl2: %ld; gvl3: %ld\n", gvl, gvl1, gvl2, gvl3 );
 
 	if ( m_iter == 0 ) goto consider_edge_cases;
 
@@ -631,6 +631,7 @@ void bli_dgemmsup_rv_epi_int_8x3vm (
 consider_edge_cases:;
 
 		    if( m_left ) {
+		            //printf("Considering edge case\n");
 			    const dim_t      nr_cur = nr;
 			    const dim_t      i_edge = m0 - ( dim_t )m_left;
 
